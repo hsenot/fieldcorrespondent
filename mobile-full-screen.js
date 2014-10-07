@@ -62,12 +62,12 @@ var initMap = function(cfg1,cfg2) {
     var ctx = event.context;
     var pixelRatio = event.frameState.pixelRatio;
     var w = ctx.canvas.width, h = ctx.canvas.height;
-    var lens_size = 200;
+    var lens_size = Math.min(200,w/2-20,h/2-20);
 
     ctx.save();
     ctx.beginPath();
     // only show a circle around the mouse
-    ctx.arc(w/2 , h/2 , lens_size  * pixelRatio, 0, 2 * Math.PI);
+    ctx.arc(w/2,h/2,lens_size, 0, 2 * Math.PI);
 
     ctx.lineWidth = 5 * pixelRatio;
     ctx.strokeStyle = 'rgba(0,0,0,0.5)';
