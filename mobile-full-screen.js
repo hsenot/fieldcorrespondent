@@ -67,14 +67,14 @@ var initMap = function(cfg1,cfg2) {
     ctx.save();
     ctx.beginPath();
     // only show a circle around the mouse
-    ctx.arc(w/2 * pixelRatio, h/2  * pixelRatio, lens_size  * pixelRatio, 0, 2 * Math.PI);
+    ctx.arc(w/2 , h/2 , lens_size  * pixelRatio, 0, 2 * Math.PI);
 
     ctx.lineWidth = 5 * pixelRatio;
     ctx.strokeStyle = 'rgba(0,0,0,0.5)';
     ctx.stroke();
     ctx.clip();
 
-    var grd=ctx.createRadialGradient(w/2 * pixelRatio,h/2  * pixelRatio,0,w/2 * pixelRatio,h/2  * pixelRatio,lens_size); 
+    var grd=ctx.createRadialGradient(w/2,h/2,0,w/2,h/2,lens_size); 
     var opacity = 0.25; //55% visible
     grd.addColorStop(0,'transparent');
     grd.addColorStop(1,'rgba(31,0,0,'+opacity+')');
