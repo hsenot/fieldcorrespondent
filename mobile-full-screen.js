@@ -9,7 +9,7 @@ $.when(
   }), 
   // Form structure
   $.ajax({
-    url: "http://groundtruth.cartodb.com/api/v2/sql?q=SELECT * FROM public.fc_interface_element WHERE project_id='"+ proj_num +"'"
+    url: "http://groundtruth.cartodb.com/api/v2/sql?q=SELECT * FROM public.fc_interface_element WHERE project_id='"+ proj_num +"' ORDER BY cartodb_id"
   }) 
 ).done(function( a1, a2 ) {
   // a1 and a2 are arguments resolved for the page1 and page2 ajax requests, respectively.
@@ -50,6 +50,44 @@ var initMap = function(cfg1,cfg2) {
     }))
   });
 
+  var vectorLayer = new ol.layer.Vector({
+    source: new ol.source.GeoJSON({
+      url: "https://groundtruth.cartodb.com/api/v2/sql?filename=fc_features&q=SELECT+title,ST_Centroid(the_geom)+the_geom+FROM+public.fc_features&format=geojson",
+      projection: 'EPSG:3857'
+    }),
+    style: styleOff
+  });
+
+  vectorLayer.on('precompose', function(event) {
+    var ctx = event.context;
+    var pixelRatio = event.frameState.pixelRatio;
+    var w = ctx.canvas.width, h = ctx.canvas.height;
+    var lens_size = 200;
+
+    ctx.save();
+    ctx.beginPath();
+    // only show a circle around the mouse
+    ctx.arc(w/2 * pixelRatio, h/2  * pixelRatio, lens_size  * pixelRatio, 0, 2 * Math.PI);
+
+    ctx.lineWidth = 5 * pixelRatio;
+    ctx.strokeStyle = 'rgba(0,0,0,0.5)';
+    ctx.stroke();
+    ctx.clip();
+
+    var grd=ctx.createRadialGradient(w/2 * pixelRatio,h/2  * pixelRatio,0,w/2 * pixelRatio,h/2  * pixelRatio,lens_size); 
+    var opacity = 0.25; //55% visible
+    grd.addColorStop(0,'transparent');
+    grd.addColorStop(1,'rgba(31,0,0,'+opacity+')');
+    ctx.fillStyle=grd;
+    ctx.fill();
+
+  });
+
+  vectorLayer.on('postcompose', function(event) {
+    var ctx = event.context;
+    ctx.restore();
+  });
+
   var map = new ol.Map({
     layers: [
       new ol.layer.Tile({
@@ -63,13 +101,7 @@ var initMap = function(cfg1,cfg2) {
           attribution: "&copy; 1987 - 2014 HERE</span>&nbsp;<a href='http://here.com/terms?locale=en-US' target='_blank' title='Terms of Use' style='color:#333;text-decoration: underline;'>Terms of Use</a></div> <div style='display: inline-block; position: absolute; bottom: 15px; left: 10px; width: 33px; height: 24px; margin: 6px; background-image: url(http://js.cit.api.here.com/se/2.5.4/assets/ovi/mapsapi/here_logo.png); background-position: 0px 0px; background-repeat: no-repeat;' title='HERE'/>"
         })
       }),
-      new ol.layer.Vector({
-        source: new ol.source.GeoJSON({
-          url: "https://groundtruth.cartodb.com/api/v2/sql?filename=fc_features&q=SELECT+title,ST_Centroid(the_geom)+the_geom+FROM+public.fc_features&format=geojson",
-          projection: 'EPSG:3857'
-        }),
-        style: styleOff
-      })
+      vectorLayer
     ],
     renderer: exampleNS.getRendererFromQueryString(),
     target: 'map',
@@ -94,14 +126,15 @@ var initMap = function(cfg1,cfg2) {
   });
   map.addInteraction(selectSingleClick);
 
-
   var myListener = function(e){
     var el = e.element;
     if (e.type === "add")
     {
       //alert(el.get('title')+' has been pressed.');
       // TODO populate and show the form
-      $('#form').css('display','block');
+      $('#formDiv').fadeTo(150,1,function(){
+        $('#formDiv').show();
+      });
     }
   };
 
@@ -152,6 +185,45 @@ var initMap = function(cfg1,cfg2) {
       // Appending the div to the form
       f.append(div_elt);
     }
+
+    // Adding the close button
+    var b1 = $('<button>').attr('type','button')
+                              .css({
+                                'position':'absolute',
+                                'bottom': 0,
+                                'left': 0,
+                                'margin-bottom': '10px',
+                                'margin-left': '20px'
+                              })
+                              .attr('class','btn btn-default')
+                              .html('Cancel')
+                              .on('click',function(){
+                                $('#formDiv').fadeTo(150,0,function(){
+                                  $('#formDiv').hide();
+                                  // TODO: clear the fields for the next feature clicked
+                                });
+                              });
+    f.append(b1);
+
+    // Adding the buttons
+    var b2 = $('<button>').attr('type','button')
+                              .css({
+                                'position':'absolute',
+                                'bottom': 0,
+                                'right': 0,
+                                'margin-bottom': '10px',
+                                'margin-right': '20px'
+                              })
+                              .attr('class','btn btn-default')
+                              .html('Submit')
+                              .on('click',function(){
+                                alert('Submitting');
+                                $('#formDiv').fadeTo(150,0,function(){
+                                  $('#formDiv').hide();
+                                  // TODO: submit to PHP service
+                                });
+                              });
+    f.append(b2);
   }
 
   // Instantiating the form building
