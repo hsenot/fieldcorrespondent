@@ -16,6 +16,17 @@
         width: 100%;
         height: 100%;
       }
+      #infoDiv {
+        margin: 0;
+        position: absolute;
+        top: 0; right: 0; left: 0;
+        padding: 5px;
+        color:#FFF;
+        font-weight:bold;
+        font-size:20px;
+        text-align:center;
+        background-color:rgba(128,128,128,0.5);
+      }
       #formDiv {
         margin: auto;
         position: absolute;
@@ -25,10 +36,17 @@
         width:90%;
         height:90%;
       }
+      /* Overrides zoom in/out placement to cater for the infoDiv */
+      .ol-zoom {
+        top: 2.5em;
+      }
     </style>
   </head>
   <body>
     <div id="map" class="map"></div>
+    <div id="infoDiv" class="alert-info">
+      <span>Move map to discover sites</span>
+    </div>    
     <div id="formDiv" style="display:none" class="well">
       <form role="form"></form>
     </div>

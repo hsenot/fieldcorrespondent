@@ -1,5 +1,7 @@
 // Project number
-var proj_num = 1; 
+var proj_num = 1;
+// Previously highlighted feature
+var prevFeature;
 
 // Promise to execute the map initialisation when all config AJAX calls have been fulfilled
 $.when( 
@@ -32,21 +34,21 @@ var initMap = function(cfg1,cfg2) {
 
   var styleOff = new ol.style.Style({
     image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
-      anchor: [0.5, 37],
+      anchor: [0.5, 40],
       anchorXUnits: 'fraction',
       anchorYUnits: 'pixels',
       opacity: 0.90,
-      src: 'img/photo.png'
+      src: 'img/icon_site_grey_40.png'
     }))
   });
 
   var styleOn = new ol.style.Style({
     image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
-      anchor: [0.5, 37],
+      anchor: [0.5, 60],
       anchorXUnits: 'fraction',
       anchorYUnits: 'pixels',
       opacity: 0.90,
-      src: 'img/photo_on.png'
+      src: 'img/icon_photo_green_60.png'
     }))
   });
 
@@ -60,34 +62,26 @@ var initMap = function(cfg1,cfg2) {
 
   vectorLayer.on('precompose', function(event) {
     var ctx = event.context;
-    var pixelRatio = event.frameState.pixelRatio;
+  });
+
+/*
+  vectorLayer.on('postcompose', function(event) {
+    var ctx = event.context;
+
     var w = ctx.canvas.width, h = ctx.canvas.height;
-    var lens_size = Math.min(200,w/2-20,h/2-20);
-
-    ctx.save();
-    ctx.beginPath();
-    // only show a circle around the mouse
-    ctx.arc(w/2,h/2,lens_size, 0, 2 * Math.PI);
-
-    ctx.lineWidth = 5 * pixelRatio;
-    ctx.strokeStyle = 'rgba(0,0,0,0.5)';
-    ctx.stroke();
-    ctx.clip();
+    var lens_size = Math.min(400,w,h);
 
     var grd=ctx.createRadialGradient(w/2,h/2,0,w/2,h/2,lens_size); 
-    var opacity = 0.25; //55% visible
+    var opacity = 0.15; //55% visible
     grd.addColorStop(0,'transparent');
+    grd.addColorStop(0.85,'transparent');
     grd.addColorStop(1,'rgba(31,0,0,'+opacity+')');
     ctx.fillStyle=grd;
     ctx.fill();
 
-  });
-
-  vectorLayer.on('postcompose', function(event) {
-    var ctx = event.context;
     ctx.restore();
   });
-
+*/
   var map = new ol.Map({
     layers: [
       new ol.layer.Tile({
@@ -122,9 +116,37 @@ var initMap = function(cfg1,cfg2) {
   // select interaction working on "singleclick"
   var selectSingleClick = new ol.interaction.Select({
     condition: ol.events.condition.click,
-    style: styleOn
+    style: styleOff
   });
   map.addInteraction(selectSingleClick);
+
+  map.on('moveend', function(evt) {
+    var c = map.getView().getCenter();
+    console.log('Center: '+c[0]+','+c[1]);
+
+    if (c[0] != 0 && c[1] != 0)
+    {
+      var closestFeature = vectorLayer.getSource().getClosestFeatureToCoordinate(c);
+      if (closestFeature)
+      {
+        if (closestFeature.get('title') != prevFeature.get('title'))
+        {
+          // Resetting the style of the previously selected feature
+          if (prevFeature) {prevFeature.setStyle(styleOff);}
+          // Styling the closest feature
+          closestFeature.setStyle(styleOn);
+          // Updating the title
+          $('#infoDiv span').html(closestFeature.get('title'));
+          // Memorising feature for next style reset
+          prevFeature = closestFeature;
+        }        
+      }
+    }
+    else
+    {
+      prevFeature = new ol.Feature({title:'Dummy'});
+    }
+  });
 
   var myListener = function(e){
     var el = e.element;
