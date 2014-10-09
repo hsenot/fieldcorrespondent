@@ -2,7 +2,7 @@ $().ready(function() {
   // Project number
   var proj_num = 1;
   // Previously highlighted feature
-  var prevFeature;
+  var prevFeature = new ol.Feature({title:'Dummy'});
 
   // Promise to execute the map initialisation when all config AJAX calls have been fulfilled
   $.when( 
@@ -115,11 +115,19 @@ $().ready(function() {
 
     // Popup on marker
     // select interaction working on "singleclick"
-    var selectSingleClick = new ol.interaction.Select({
-      condition: ol.events.condition.click,
-      style: styleOn
+    map.on('click',function(evt){
+      var features = [];
+      map.forEachFeatureAtPixel(evt.pixel, function(feature, layer) {
+        features.push(feature);
+      });
+      if (features.length > 0) {
+        // TODO populate and show the form
+        $('#formDiv').fadeTo(50,1,function(){
+          $('#htitle').html(features[0].get('title'));
+          $('#formDiv').show();
+        });
+      }
     });
-    map.addInteraction(selectSingleClick);
 
     map.on('moveend', function(evt) {
       var c = map.getView().getCenter();
@@ -143,33 +151,23 @@ $().ready(function() {
           }        
         }
       }
-      else
-      {
-        prevFeature = new ol.Feature({title:'Dummy'});
-      }
     });
-
-    var myListener = function(e){
-      var el = e.element;
-      if (e.type === "add")
-      {
-        //alert(el.get('title')+' has been pressed.');
-        // TODO populate and show the form
-        $('#formDiv').fadeTo(150,1,function(){
-          $('#formDiv').show();
-        });
-      }
-    };
-
-    var collection = selectSingleClick.getFeatures(); 
-    collection.on('add', myListener); 
-    collection.on('remove', myListener); 
 
     // Build the form based on retrieved interface elements
     var buildForm = function(cfg){
       // Locating the form
       var f = $('form');
       var div_elt;
+
+      //<div class="page-header">
+      //  <h1>Example page header <small>Subtext for header</small></h1>
+      //</div>
+      var h1_elt = $('<h1>').attr('id','htitle');
+      var header_elt = $('<div>')
+                    .attr('class','page-header text-center')
+                    .css('color','white')
+                    .append(h1_elt);
+      f.append(header_elt);
 
       // Adding elements to the form
       for (var k=0;k<cfg.length;k++)
