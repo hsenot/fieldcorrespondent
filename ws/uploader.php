@@ -1,15 +1,5 @@
 <?php
 
-/*
-  // LOG
-  $log = '=== ' . @date('Y-m-d H:i:s') . ' ===============================' . "\n"
-  . 'FILES:' . print_r($_FILES, 1) . "\n"
-  . 'POST:' . print_r($_POST, 1) . "\n";
-  $fp = fopen('upload-log.txt', 'a');
-  fwrite($fp, $log);
-  fclose($fp);
- */
-
 // Result object
 $r = new stdClass();
 // no-cache (important for mobile safari)
@@ -27,7 +17,7 @@ if ($_FILES['photo_input']['size'] > ($maxsize * 1048576)) {
 }
 
 // If the file is an image
-if (preg_match('/image/i', $_FILES['photo']['type'])) {
+if (preg_match('/image/i', $_FILES['photo_input']['type'])) {
 
     $filename = 'uploads/' . uniqid() . '.jpg';
 } else {
@@ -41,10 +31,10 @@ $types = Array('image/png', 'image/gif', 'image/jpeg');
 if (in_array($_FILES['photo_input']['type'], $types)) {
     // Create an unique file name    
     // Uploaded file source
-    $source = file_get_contents($_FILES["photo"]["tmp_name"]);
+    $source = file_get_contents($_FILES["photo_input"]["tmp_name"]);
     /// // Image resize
     /// imageresize($source, $filename);
-    $filename = $_FILES["photo"]["tmp_name"];
+    $filename = $_FILES["photo_input"]["tmp_name"];
 } else {
     // If the file is not an image
     $r->error = "Error: this is not an image file";
