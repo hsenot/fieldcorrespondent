@@ -7,3 +7,7 @@ goog.require('ol.layer.Vector');
 goog.require('ol.source.BingMaps');
 goog.require('ol.source.XYZ');
 goog.require('ol.source.GeoJSON');
+goog.require('ol.style.Text');
+goog.require('ol.style.Fill');
+goog.require('ol.style.Stroke');
+goog.require('ol.style.Style');

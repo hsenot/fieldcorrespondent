@@ -1,12 +1,14 @@
 $().ready(function() {
   // Project number
   var proj_num = 1;
-  // Previously highlighted feature
+  // Previously highlighted feature - should we parameterise the 'name' attribute?
   var prevFeature = new ol.Feature({name:'Dummy'});
+  // Style cache
+  var featStyleCache = {};
 
   // Promise to execute the map initialisation when all config AJAX calls have been fulfilled
   $.when( 
-    // Project specific information
+    // Project specific information - should return a filter element for the feature query
     $.ajax({
       url: "http://groundtruth.cartodb.com/api/v2/sql?q=SELECT * FROM public.fc_projects WHERE project_id='"+ proj_num +"'"
     }), 
@@ -35,27 +37,54 @@ $().ready(function() {
 
     var styleOff = new ol.style.Style({
       image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
-        anchor: [0.5, 40],
+        anchor: [0.5, 44],
         anchorXUnits: 'fraction',
         anchorYUnits: 'pixels',
-        opacity: 0.90,
-        src: 'img/icon_site_grey_40.png'
+        opacity: 0.70,
+        src: 'img/a.png'
       }))
     });
 
-    var styleOn = new ol.style.Style({
-      image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
-        anchor: [0.5, 60],
-        anchorXUnits: 'fraction',
-        anchorYUnits: 'pixels',
-        opacity: 0.90,
-        src: 'img/icon_photo_green_60.png'
-      }))
-    });
+    var getText = function(feature, resolution) {
+      var text = feature.get('name') || '';
+      return text;
+    };
 
+    var createTextStyle = function(feature, resolution) {
+      return new ol.style.Text({
+        textAlign: 'center',
+        textBaseline: 'middle',
+        font: 'bold 12px Arial',
+        text: getText(feature, resolution),
+        fill: new ol.style.Fill({color: '#666'}),
+        stroke: new ol.style.Stroke({color: '#ffffff', width: 6}),
+        offsetX: 0,
+        offsetY: 8
+      });
+    };
+
+    var styleOn = function(feature, resolution) {
+      var styleKey = 0;
+      var styleArray = featStyleCache[styleKey];
+        styleArray = [new ol.style.Style({
+          text: createTextStyle(feature, resolution),
+          image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
+            anchor: [0.5, 46],
+            anchorXUnits: 'fraction',
+            anchorYUnits: 'pixels',
+            opacity: 0.95,
+            src: 'img/c.png'
+          })),
+          zIndex: 1
+        })];
+        featStyleCache[styleKey] = styleArray;
+      return styleArray;
+    };
+
+    // Should use a filter from the project characteristics
     var vectorLayer = new ol.layer.Vector({
       source: new ol.source.GeoJSON({
-        url: "https://groundtruth.cartodb.com/api/v2/sql?filename=fc_features&q=SELECT+name,ST_Centroid(the_geom)+the_geom+FROM+public.fc_features&format=geojson",
+        url: "https://groundtruth.cartodb.com/api/v2/sql?filename=fc_features&q=SELECT+name,ST_Centroid(the_geom)+the_geom+FROM+public.fc_features+WHERE+dataset_id='"+cfg1[0].rows[0].dataset_id+"'&format=geojson",
         projection: 'EPSG:3857'
       }),
       style: styleOff
@@ -91,8 +120,7 @@ $().ready(function() {
       view.setResolution(2.388657133911758);
     });
 
-    // Popup on marker
-    // select interaction working on "singleclick"
+    // Showing the form on feature click
     map.on('click',function(evt){
       var features = [];
       map.forEachFeatureAtPixel(evt.pixel, function(feature, layer) {
@@ -107,6 +135,7 @@ $().ready(function() {
       }
     });
 
+    // Changing style on map moveend
     map.on('moveend', function(evt) {
       var c = map.getView().getCenter();
       console.log('Center: '+c[0]+','+c[1]);
@@ -121,7 +150,7 @@ $().ready(function() {
             // Resetting the style of the previously selected feature
             if (prevFeature) {prevFeature.setStyle(styleOff);}
             // Styling the closest feature
-            closestFeature.setStyle(styleOn);
+            closestFeature.setStyle(styleOn(closestFeature));
             // Updating the title
             $('#infoDiv span').html(closestFeature.get('name'));
             // Memorising feature for next style reset
@@ -223,57 +252,56 @@ $().ready(function() {
 
       // Adding the buttons
       var b2 = $('<button>')
-            .attr('type','button')
-            .css({
-              'position':'absolute',
-              'bottom': 0,
-              'right': 0,
-              'margin-bottom': '10px',
-              'margin-right': '20px'
-            })
-            .attr('class','btn btn-default')
-            .html('Upload')
-            .on('click',function(){
-              // TODO: loader indicating file is being uploaded
+        .attr('type','button')
+        .css({
+          'position':'absolute',
+          'bottom': 0,
+          'right': 0,
+          'margin-bottom': '10px',
+          'margin-right': '20px'
+        })
+        .attr('class','btn btn-default')
+        .html('Upload')
+        .on('click',function(){
+          // TODO: loader indicating file is being uploaded
 
-              // Create a new formdata
-              console.log('Submitting form');
+          // Create a new formdata
+          console.log('Submitting form');
 
-              // Submit to PHP service
-              $.ajax({
-                url: 'ws/uploader.php',
-                type: 'POST',
-                data: new FormData($('form')[0]),
-                dataType: 'json',
-                contentType: false,
-                processData: false,
-                beforeSend: function(xhr) {
-                    xhr.setRequestHeader("pragma", "no-cache");
-                },
-                xhr: function() {
-                  var xhr = new window.XMLHttpRequest();
-                  //Upload progress
-                  xhr.upload.addEventListener("progress", function(e) {
-                    if (e.lengthComputable) {
-                      var loaded = Math.ceil((e.loaded / e.total) * 100);
-                      $('p span').css({
-                          'width': loaded + "%"
-                      }).html(loaded + "%");
-                    }
-                  }, false);
-                  return xhr;
+          // Submit to PHP service
+          $.ajax({
+            url: 'ws/uploader.php',
+            type: 'POST',
+            data: new FormData($('form')[0]),
+            dataType: 'json',
+            contentType: false,
+            processData: false,
+            beforeSend: function(xhr) {
+                xhr.setRequestHeader("pragma", "no-cache");
+            },
+            xhr: function() {
+              var xhr = new window.XMLHttpRequest();
+              //Upload progress
+              xhr.upload.addEventListener("progress", function(e) {
+                if (e.lengthComputable) {
+                  var loaded = Math.ceil((e.loaded / e.total) * 100);
+                  $('p span').css({
+                      'width': loaded + "%"
+                  }).html(loaded + "%");
                 }
-              }).done(function(response) {
-                console.log(response);
-                if (response.filename) {
-                  // All good - hide the form
-                  $('#formDiv').fadeTo(150,0,function(){
-                    $('#formDiv').hide();
-                  });
-                }
+              }, false);
+              return xhr;
+            }
+          }).done(function(response) {
+            console.log(response);
+            if (response.filename) {
+              // All good - hide the form
+              $('#formDiv').fadeTo(150,0,function(){
+                $('#formDiv').hide();
               });
-
-            });
+            }
+          });
+        });
       f.append(b2);
     }
 
