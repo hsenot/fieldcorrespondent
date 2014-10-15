@@ -11,3 +11,4 @@ goog.require('ol.style.Text');
 goog.require('ol.style.Fill');
 goog.require('ol.style.Stroke');
 goog.require('ol.style.Style');
+goog.require('ol.format.WKT');

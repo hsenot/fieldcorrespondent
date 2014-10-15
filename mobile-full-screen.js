@@ -1,8 +1,28 @@
+// Helper functions
+function getUrlParameter(sParam)
+{
+    var sPageURL = window.location.search.substring(1);
+    var sURLVariables = sPageURL.split('&');
+    for (var i = 0; i < sURLVariables.length; i++) 
+    {
+        var sParameterName = sURLVariables[i].split('=');
+        if (sParameterName[0] == sParam) 
+        {
+            return sParameterName[1];
+        }
+    }
+}
+
 $().ready(function() {
-  // Project number
-  var proj_num = 1;
-  // Previously highlighted feature - should we parameterise the 'name' attribute?
-  var prevFeature = new ol.Feature({name:'Dummy'});
+  // Project ID: passed in URL or default to 1
+  var proj_id = parseInt(getUrlParameter('id')) || 1;
+
+  // Previously highlighted feature
+  var featNameAttr = 'name';
+  var featOpts = {};
+  featOpts[featNameAttr] = 'Dummy';
+  var prevFeature = new ol.Feature(featOpts);
+
   // Style cache
   var featStyleCache = {};
 
@@ -10,11 +30,11 @@ $().ready(function() {
   $.when( 
     // Project specific information - should return a filter element for the feature query
     $.ajax({
-      url: "http://groundtruth.cartodb.com/api/v2/sql?q=SELECT * FROM public.fc_projects WHERE project_id='"+ proj_num +"'"
+      url: "http://groundtruth.cartodb.com/api/v2/sql?q=SELECT p.cartodb_id,p.dataset_id,p.title,p.range,(SELECT ST_AsText(ST_Buffer(ST_Extent(f.the_geom),0)) FROM fc_features f WHERE f.dataset_id=p.dataset_id) the_geom FROM public.fc_projects p WHERE p.cartodb_id="+ proj_id
     }), 
-    // Form structure (TODO: minimise number of calls)
+    // Form structure (TODO: minimise number of calls by combining the 2 queries)
     $.ajax({
-      url: "http://groundtruth.cartodb.com/api/v2/sql?q=SELECT * FROM public.fc_project_elements WHERE project_id='"+ proj_num +"' ORDER BY cartodb_id"
+      url: "http://groundtruth.cartodb.com/api/v2/sql?q=SELECT * FROM public.fc_project_elements WHERE project_id='"+ proj_id +"' ORDER BY cartodb_id"
     }) 
   ).done(function( a1, a2 ) {
     // a1 and a2 are arguments resolved for the page1 and page2 ajax requests, respectively.
@@ -24,16 +44,12 @@ $().ready(function() {
 
   var initMap = function(cfg1,cfg2) {
 
-    // TODO set center (and possibly zoom) for initial view
-    if (cfg1[0].rows[0].the_geom)
-    {
-      alert("Initial view info detected.");
-    }
-
-    var view = new ol.View({
+    var viewOpts = {
       center: [0, 0],
       zoom: 2
-    });
+    };
+
+    var view = new ol.View(viewOpts);
 
     var styleOff = new ol.style.Style({
       image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
@@ -46,7 +62,7 @@ $().ready(function() {
     });
 
     var getText = function(feature, resolution) {
-      var text = feature.get('name') || '';
+      var text = feature.get(featNameAttr) || '';
       return text;
     };
 
@@ -84,7 +100,7 @@ $().ready(function() {
     // Should use a filter from the project characteristics
     var vectorLayer = new ol.layer.Vector({
       source: new ol.source.GeoJSON({
-        url: "https://groundtruth.cartodb.com/api/v2/sql?filename=fc_features&q=SELECT+name,ST_Centroid(the_geom)+the_geom+FROM+public.fc_features+WHERE+dataset_id='"+cfg1[0].rows[0].dataset_id+"'&format=geojson",
+        url: "https://groundtruth.cartodb.com/api/v2/sql?filename=fc_features&q=SELECT+"+featNameAttr+",ST_Centroid(the_geom)+the_geom+FROM+public.fc_features+WHERE+dataset_id='"+cfg1[0].rows[0].dataset_id+"'&format=geojson",
         projection: 'EPSG:3857'
       }),
       style: styleOff
@@ -110,6 +126,21 @@ $().ready(function() {
       view: view
     });
 
+    // Set center (and possibly zoom) for initial view
+    if (cfg1[0].rows[0].the_geom)
+    {
+      var wkt = new ol.format.WKT();
+      var polygon = wkt.readGeometryFromText(cfg1[0].rows[0].the_geom).transform('EPSG:4326','EPSG:3857');
+      var size = /** @type {ol.Size} */ (map.getSize());
+      view.fitGeometry(
+          polygon,
+          size,
+          {
+            nearest: true
+          }
+      );
+    }
+
     // Geolocation
     var geolocation = new ol.Geolocation({
       projection: view.getProjection(),
@@ -129,7 +160,7 @@ $().ready(function() {
       if (features.length > 0) {
         // TODO populate and show the form
         $('#formDiv').fadeTo(50,1,function(){
-          $('#htitle').html(features[0].get('name'));
+          $('#htitle').html(features[0].get(featNameAttr));
           $('#formDiv').show();
         });
       }
@@ -145,14 +176,14 @@ $().ready(function() {
         var closestFeature = vectorLayer.getSource().getClosestFeatureToCoordinate(c);
         if (closestFeature)
         {
-          if (closestFeature.get('name') != prevFeature.get('name'))
+          if (closestFeature.get(featNameAttr) != prevFeature.get(featNameAttr))
           {
             // Resetting the style of the previously selected feature
             if (prevFeature) {prevFeature.setStyle(styleOff);}
             // Styling the closest feature
             closestFeature.setStyle(styleOn(closestFeature));
             // Updating the title
-            $('#infoDiv span').html(closestFeature.get('name'));
+            $('#infoDiv span').html(closestFeature.get(featNameAttr));
             // Memorising feature for next style reset
             prevFeature = closestFeature;
           }        
