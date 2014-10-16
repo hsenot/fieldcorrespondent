@@ -130,7 +130,7 @@ $().ready(function() {
     if (cfg1[0].rows[0].the_geom)
     {
       var wkt = new ol.format.WKT();
-      var polygon = wkt.readGeometryFromText(cfg1[0].rows[0].the_geom).transform('EPSG:4326','EPSG:3857');
+      var polygon = wkt.readGeometry(cfg1[0].rows[0].the_geom).transform('EPSG:4326','EPSG:3857');
       var size = /** @type {ol.Size} */ (map.getSize());
       view.fitGeometry(
           polygon,
