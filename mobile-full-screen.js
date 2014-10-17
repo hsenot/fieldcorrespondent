@@ -353,6 +353,10 @@ $().ready(function() {
             if (response.url_imgur) {
               // All good - hide the form
               $('#formDiv').fadeTo(150,0,function(){
+                if (getUrlParameter('mode')=='raw')
+                {
+                  alert(JSON.stringify(response));
+                }                
                 $('#formDiv').hide();
                 clickedFeature = null;
               });
