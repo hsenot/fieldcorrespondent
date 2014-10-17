@@ -41,6 +41,9 @@ $().ready(function() {
     // a1 and a2 are arguments resolved for the page1 and page2 ajax requests, respectively.
     // Each argument is an array with the following structure: [ data, statusText, jqXHR ]
     initMap(a1,a2);
+
+    // Set project title on
+    $('#infoDiv span').html(a1[0].rows[0].title);
   });
 
   var initMap = function(cfg1,cfg2) {
@@ -191,8 +194,6 @@ $().ready(function() {
             if (prevFeature) {prevFeature.setStyle(styleOff);}
             // Styling the closest feature
             closestFeature.setStyle(styleOn(closestFeature));
-            // Updating the title
-            $('#infoDiv span').html(closestFeature.get(featNameAttr));
             // Memorising feature for next style reset
             prevFeature = closestFeature;
           }        
@@ -209,10 +210,10 @@ $().ready(function() {
       //<div class="page-header">
       //  <h1>Example page header <small>Subtext for header</small></h1>
       //</div>
-      var h1_elt = $('<h1>').attr('id','htitle');
+      var h1_elt = $('<h3>').attr('id','htitle');
       var header_elt = $('<div>')
-                    .attr('class','page-header text-center')
-                    .css('color','white')
+                    .attr('class','text-left')
+                    .css('color','black')
                     .append(h1_elt);
       f.append(header_elt);
 
@@ -231,10 +232,31 @@ $().ready(function() {
           var div_s1 = $('<label>')
                           .attr('for', 'photo_input')
                           .html(cfg[k].key);
-          var div_s2 = $('<input>')
-                          .attr('type', 'file')
-                          .attr('name', 'photo_input');
-          div_elt.append(div_s1).append(div_s2);
+          var div_s2 = $('<div>')
+                          .attr('id','file_div_container')
+                          .css({
+                            position: 'absolute',
+                            overflow: 'hidden',
+                            left: '-500px'
+                          })
+                          .append(
+                            $('<input>')
+                            .attr('type', 'file')
+                            .attr('name', 'photo_input')
+                          );
+          var div_s3 = $('<div>')
+                          .attr('id','photo_div_container')
+                          .css({
+                          })
+                          .append(
+                            $('<img>')
+                            .attr('src', 'img/e.png')
+                            .css({
+                              width: '80px',
+                              cursor: 'pointer'
+                            })
+                          );                          
+          div_elt.append(div_s1).append(div_s2).append(div_s3);
           var img_elt = $('<img>').attr('id', 'thumb').attr('width',200);
           var img_progress = $('<p>').append($('<span>'));
           div_elt.append(img_elt).append(img_progress);
@@ -257,6 +279,12 @@ $().ready(function() {
         f.append(div_elt);
       }
 
+      // Click on photo img container should trigger the input file 'click' event 
+      $('#photo_div_container').on('click',function(){
+        $('input[name=photo_input]').trigger('click');
+      });
+
+      // When file changed, we resize it client-side
       $('input[name=photo_input]').change(function(e) {
         var file = e.target.files[0];
         canvasResize(file, {
