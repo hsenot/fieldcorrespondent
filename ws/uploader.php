@@ -65,9 +65,25 @@
 
     // Result data
     $r->url_local = $path . $filename;
-    $r->img = '<img src="' . $r->url_local . '" alt="image" />';
 
-    // TODO: add a record to CartoDB's observation table, linking the feature and the photo
+    // Insert a record in CartoDB's observation table, linking the feature and the photo
+
+    // Create an observation
+    $sql = "INSERT INTO fc_observations(the_geom,comments,feature_id,dataset_id,date_time) VALUES (ST_Transform(ST_SetSRID(ST_MakePoint(".$_REQUEST['map_view_x'].",".$_REQUEST['map_view_y']."),900913),4326),'".$r->url_imgur."',".$_REQUEST['feature_id'].",'".$_REQUEST['dataset_id']."',CURRENT_TIMESTAMP(2)) RETURNING cartodb_id";
+    $r->observation_sql = $sql;
+    // Initializing curl
+    $ch = curl_init( "https://".$cartodb_username.".cartodb.com/api/v2/sql" );
+    $query = http_build_query(array('q'=>$sql,'api_key'=>$cartodb_api_key));
+    // Configuring curl options
+    curl_setopt($ch, CURLOPT_POST, TRUE);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $query);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+    $result_not_parsed = curl_exec($ch);
+    $result = json_decode($result_not_parsed);
+    // Observation ID
+    $r->observation_id = $result->rows[0]->cartodb_id;
+
+    // TODO: for all form fields, create an observation snippet to do this?
 
     // Return to JSON
     echo json_encode($r);

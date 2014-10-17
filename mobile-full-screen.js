@@ -25,6 +25,7 @@ $().ready(function() {
 
   // Style cache
   var featStyleCache = {};
+  var clickedFeature;
 
   // Promise to execute the map initialisation when all config AJAX calls have been fulfilled
   $.when( 
@@ -100,7 +101,7 @@ $().ready(function() {
     // Should use a filter from the project characteristics
     var vectorLayer = new ol.layer.Vector({
       source: new ol.source.GeoJSON({
-        url: "https://groundtruth.cartodb.com/api/v2/sql?filename=fc_features&q=SELECT+"+featNameAttr+",ST_Centroid(the_geom)+the_geom+FROM+public.fc_features+WHERE+dataset_id='"+cfg1[0].rows[0].dataset_id+"'&format=geojson",
+        url: "https://groundtruth.cartodb.com/api/v2/sql?filename=fc_features&q=SELECT+feature_id,"+featNameAttr+",ST_Centroid(the_geom)+the_geom+FROM+public.fc_features+WHERE+dataset_id='"+cfg1[0].rows[0].dataset_id+"'&format=geojson",
         projection: 'EPSG:3857'
       }),
       style: styleOff
@@ -165,7 +166,8 @@ $().ready(function() {
           $('form')[0].reset();
 
           // Displaying attribute info
-          $('#htitle').html(features[0].get(featNameAttr));
+          clickedFeature = features[0];
+          $('#htitle').html(clickedFeature.get(featNameAttr));
 
           // Show the form
           $('#formDiv').show();
@@ -283,7 +285,7 @@ $().ready(function() {
             .on('click',function(){
               $('#formDiv').fadeTo(150,0,function(){
                 $('#formDiv').hide();
-                // TODO: clear the fields for the next feature clicked
+                clickedFeature = null;
               });
             });
       f.append(b1);
@@ -316,6 +318,12 @@ $().ready(function() {
               fd.append(input.name,input.value);
           });
 
+          // Other data
+          fd.append("dataset_id",cfg1[0].rows[0].dataset_id);
+          fd.append("feature_id",clickedFeature.get('feature_id'));
+          fd.append("map_view_x",map.getView().getCenter()[0]);
+          fd.append("map_view_y",map.getView().getCenter()[1]);
+
           // Submit to PHP service
           $.ajax({
             url: 'ws/uploader.php',
@@ -342,10 +350,11 @@ $().ready(function() {
             }
           }).done(function(response) {
             console.log(response);
-            if (response.filename) {
+            if (response.url_imgur) {
               // All good - hide the form
               $('#formDiv').fadeTo(150,0,function(){
                 $('#formDiv').hide();
+                clickedFeature = null;
               });
             }
           });
