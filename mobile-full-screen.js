@@ -160,7 +160,14 @@ $().ready(function() {
       if (features.length > 0) {
         // TODO populate and show the form
         $('#formDiv').fadeTo(50,1,function(){
+          // Form reset
+          // Source: http://jquery-howto.blogspot.com.au/2013/08/jquery-form-reset.html
+          $('form')[0].reset();
+
+          // Displaying attribute info
           $('#htitle').html(features[0].get(featNameAttr));
+
+          // Show the form
           $('#formDiv').show();
         });
       }
@@ -226,9 +233,9 @@ $().ready(function() {
                           .attr('type', 'file')
                           .attr('name', 'photo_input');
           div_elt.append(div_s1).append(div_s2);
-          var img_elt = $('<img>').attr('id', 'thumb');
+          var img_elt = $('<img>').attr('id', 'thumb').attr('width',200);
           var img_progress = $('<p>').append($('<span>'));
-          div_elt.append(img_elt);
+          div_elt.append(img_elt).append(img_progress);
         }
 
         // <input type="text" class="form-control" placeholder="Text input">
@@ -251,7 +258,7 @@ $().ready(function() {
       $('input[name=photo_input]').change(function(e) {
         var file = e.target.files[0];
         canvasResize(file, {
-          width: 150,
+          width: 800,
           height: 0,
           crop: false,
           quality: 80,
@@ -295,15 +302,25 @@ $().ready(function() {
         .html('Upload')
         .on('click',function(){
           // TODO: loader indicating file is being uploaded
+          console.log('Submitting form');
 
           // Create a new formdata
-          console.log('Submitting form');
+          var fd = new FormData();
+
+          // Photo input
+          fd.append("photo_input", $.canvasResize('dataURLtoBlob', $('#thumb').attr('src')));
+
+          // Serialize will skip file input
+          var other_data = $('form').serializeArray();
+          $.each(other_data,function(key,input){
+              fd.append(input.name,input.value);
+          });
 
           // Submit to PHP service
           $.ajax({
             url: 'ws/uploader.php',
             type: 'POST',
-            data: new FormData($('form')[0]),
+            data: fd,
             dataType: 'json',
             contentType: false,
             processData: false,
