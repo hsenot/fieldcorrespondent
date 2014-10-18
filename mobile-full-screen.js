@@ -57,7 +57,7 @@ $().ready(function() {
 
     var styleOff = new ol.style.Style({
       image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
-        anchor: [0.5, 44],
+        anchor: [0.5, 51],
         anchorXUnits: 'fraction',
         anchorYUnits: 'pixels',
         opacity: 0.70,
@@ -89,7 +89,7 @@ $().ready(function() {
         styleArray = [new ol.style.Style({
           text: createTextStyle(feature, resolution),
           image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
-            anchor: [0.5, 46],
+            anchor: [0.5, 57],
             anchorXUnits: 'fraction',
             anchorYUnits: 'pixels',
             opacity: 0.95,
