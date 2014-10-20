@@ -67,9 +67,16 @@
     $r->url_local = $path . $filename;
 
     // Insert a record in CartoDB's observation table, linking the feature and the photo
+    // Building a JSON object out of form data received
+    $credit = '';
+    if (isset($_REQUEST['text_input']))
+    {
+        $credit = $_REQUEST['text_input'];
+    }
+    $form_data_json = json_encode(array('photo'=>$r->url_imgur,'credit'=>$credit));
 
     // Create an observation
-    $sql = "INSERT INTO fc_observations(the_geom,comments,feature_id,dataset_id,date_time) VALUES (ST_Transform(ST_SetSRID(ST_MakePoint(".$_REQUEST['map_view_x'].",".$_REQUEST['map_view_y']."),900913),4326),'".$r->url_imgur."',".$_REQUEST['feature_id'].",'".$_REQUEST['dataset_id']."',CURRENT_TIMESTAMP(2)) RETURNING cartodb_id";
+    $sql = "INSERT INTO fc_observations(the_geom,form_data,feature_id,dataset_id,date_time) VALUES (ST_Transform(ST_SetSRID(ST_MakePoint(".$_REQUEST['map_view_x'].",".$_REQUEST['map_view_y']."),900913),4326),'".$form_data_json."',".$_REQUEST['feature_id'].",'".$_REQUEST['dataset_id']."',CURRENT_TIMESTAMP(2)) RETURNING cartodb_id";
     $r->observation_sql = $sql;
     // Initializing curl
     $ch = curl_init( "https://".$cartodb_username.".cartodb.com/api/v2/sql" );
