@@ -142,7 +142,7 @@ $().ready(function() {
     // Should use a filter from the project characteristics
     var vectorLayer = new ol.layer.Vector({
       source: new ol.source.GeoJSON({
-        url: "https://groundtruth.cartodb.com/api/v2/sql?filename=fc_features&q=SELECT+f.feature_id,"+featNameAttr+",(select count(*) from fc_observations o where o.feature_id=f.feature_id) as badge,ST_Centroid(f.the_geom)+the_geom+FROM+public.fc_features+f+WHERE+f.dataset_id='"+cfg1[0].rows[0].dataset_id+"'&format=geojson",
+        url: "https://groundtruth.cartodb.com/api/v2/sql?filename=fc_features&q=SELECT+f.feature_id,"+featNameAttr+",f.description,(select count(*) from fc_observations o where o.feature_id=f.feature_id) as badge,ST_Centroid(f.the_geom)+the_geom+FROM+public.fc_features+f+WHERE+f.dataset_id='"+cfg1[0].rows[0].dataset_id+"'&format=geojson",
         projection: 'EPSG:3857'
       }),
       style: styleOff
@@ -215,6 +215,7 @@ $().ready(function() {
           // Displaying attribute info
           clickedFeature = features[0];
           $('#htitle').html(clickedFeature.get(featNameAttr));
+          $('#hdesc').html(clickedFeature.get('description'));
 
           // Show the form
           $('#formDiv').show();
@@ -254,11 +255,13 @@ $().ready(function() {
       //<div class="page-header">
       //  <h1>Example page header <small>Subtext for header</small></h1>
       //</div>
-      var h1_elt = $('<h3>').attr('id','htitle');
+      var title_elt = $('<h3>').attr('id','htitle');
+      var desc_elt = $('<p>').attr('id','hdesc');
       var header_elt = $('<div>')
                     .attr('class','text-left')
                     .css('color','black')
-                    .append(h1_elt);
+                    .append(title_elt)
+                    .append(desc_elt);
       f.append(header_elt);
 
       // Adding elements to the form
@@ -291,19 +294,33 @@ $().ready(function() {
           var div_s3 = $('<div>')
                           .attr('id','photo_div_container')
                           .css({
+                            display: 'inline-block'
                           })
                           .append(
                             $('<img>')
-                            .attr('src', 'img/e.png')
+                            .attr('src', 'img/addphoto.png')
                             .css({
                               width: '80px',
                               cursor: 'pointer'
                             })
-                          );                          
+                          );
+          var img_div = $('<div>')
+                          .attr('id','img_div_container')
+                          .css({
+                            display: 'inline-block'
+                          })
+                          .append(
+                            $('<img>').attr('id', 'thumb')
+                            .css({
+                              width: '120px',
+                              height: '80px',
+                              border: '1px solid grey',
+                            })
+                          );
+          div_s3.append(img_div);
           div_elt.append(div_s1).append(div_s2).append(div_s3);
-          var img_elt = $('<img>').attr('id', 'thumb').attr('width',200);
           var img_progress = $('<p>').append($('<span>'));
-          div_elt.append(img_elt).append(img_progress);
+          div_elt.append(img_progress);
         }
 
         // <input type="text" class="form-control" placeholder="Text input">
