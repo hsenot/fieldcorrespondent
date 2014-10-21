@@ -300,7 +300,7 @@ $().ready(function() {
                             $('<img>')
                             .attr('src', 'img/addphoto.png')
                             .css({
-                              width: '80px',
+                              width: '100px',
                               cursor: 'pointer'
                             })
                           );
@@ -312,9 +312,9 @@ $().ready(function() {
                           .append(
                             $('<img>').attr('id', 'thumb')
                             .css({
-                              width: '120px',
-                              height: '80px',
-                              border: '1px solid grey',
+                              width: '100px',
+                              height: '100px',
+                              border: '0px'
                             })
                           );
           div_s3.append(img_div);
@@ -355,6 +355,10 @@ $().ready(function() {
           quality: 80,
           //rotate: 90,
           callback: function(data, width, height) {
+            $('#thumb').css({
+              'height':'100px',
+              'width':width/height*100+'px'
+            });
             $('#thumb').attr('src', data);
           }
         });
