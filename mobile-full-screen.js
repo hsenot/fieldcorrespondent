@@ -24,7 +24,7 @@ $().ready(function() {
   var prevFeature = new ol.Feature(featOpts);
 
   // Style cache
-  var featStyleCache = {};
+  var featStyleCache = {}, featStyleCache2 = {};
   var clickedFeature;
 
   // Promise to execute the map initialisation when all config AJAX calls have been fulfilled
@@ -55,15 +55,24 @@ $().ready(function() {
 
     var view = new ol.View(viewOpts);
 
-    var styleOff = new ol.style.Style({
-      image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
-        anchor: [0.5, 51],
-        anchorXUnits: 'fraction',
-        anchorYUnits: 'pixels',
-        opacity: 0.70,
-        src: 'img/a.png'
-      }))
-    });
+    var getBadge = function(feature, resolution) {
+      var text = feature.get('badge');
+      if (text == 0){text = '';}
+      return '' + text;
+    };
+
+    var createBadgeStyle = function(feature, resolution) {
+      return new ol.style.Text({
+        textAlign: 'center',
+        textBaseline: 'middle',
+        font: 'bold 12px Arial',
+        text: getBadge(feature, resolution),
+        fill: new ol.style.Fill({color: '#ffffff'}),
+        stroke: new ol.style.Stroke({color: '#FFA500', width: 6}),
+        offsetX: 22,
+        offsetY: -14
+      });
+    };
 
     var getText = function(feature, resolution) {
       var text = feature.get(featNameAttr) || '';
@@ -83,20 +92,49 @@ $().ready(function() {
       });
     };
 
+    var styleOff = function(feature, resolution) {
+      var styleKey = 0;
+      var styleArray = featStyleCache2[styleKey];
+        styleArray = [
+          new ol.style.Style({
+            image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
+              anchor: [0.5, 51],
+              anchorXUnits: 'fraction',
+              anchorYUnits: 'pixels',
+              opacity: 0.70,
+              src: 'img/a.png'
+            })),
+            zIndex: 1
+          }),
+          new ol.style.Style({
+            text: createBadgeStyle(feature, resolution),
+            zIndex: 1
+          })
+        ];
+        featStyleCache2[styleKey] = styleArray;
+      return styleArray;
+    };
+
     var styleOn = function(feature, resolution) {
       var styleKey = 0;
       var styleArray = featStyleCache[styleKey];
-        styleArray = [new ol.style.Style({
-          text: createTextStyle(feature, resolution),
-          image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
-            anchor: [0.5, 57],
-            anchorXUnits: 'fraction',
-            anchorYUnits: 'pixels',
-            opacity: 0.95,
-            src: 'img/c.png'
-          })),
-          zIndex: 1
-        })];
+        styleArray = [
+          new ol.style.Style({
+            text: createTextStyle(feature, resolution),
+            image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
+              anchor: [0.5, 57],
+              anchorXUnits: 'fraction',
+              anchorYUnits: 'pixels',
+              opacity: 0.95,
+              src: 'img/c.png'
+            })),
+            zIndex: 1
+          }),
+          new ol.style.Style({
+            text: createBadgeStyle(feature, resolution),
+            zIndex: 2
+          })
+        ];
         featStyleCache[styleKey] = styleArray;
       return styleArray;
     };
@@ -104,7 +142,7 @@ $().ready(function() {
     // Should use a filter from the project characteristics
     var vectorLayer = new ol.layer.Vector({
       source: new ol.source.GeoJSON({
-        url: "https://groundtruth.cartodb.com/api/v2/sql?filename=fc_features&q=SELECT+feature_id,"+featNameAttr+",ST_Centroid(the_geom)+the_geom+FROM+public.fc_features+WHERE+dataset_id='"+cfg1[0].rows[0].dataset_id+"'&format=geojson",
+        url: "https://groundtruth.cartodb.com/api/v2/sql?filename=fc_features&q=SELECT+f.feature_id,"+featNameAttr+",(select count(*) from fc_observations o where o.feature_id=f.feature_id) as badge,ST_Centroid(f.the_geom)+the_geom+FROM+public.fc_features+f+WHERE+f.dataset_id='"+cfg1[0].rows[0].dataset_id+"'&format=geojson",
         projection: 'EPSG:3857'
       }),
       style: styleOff
@@ -197,7 +235,7 @@ $().ready(function() {
           if (closestFeature.get(featNameAttr) != prevFeature.get(featNameAttr))
           {
             // Resetting the style of the previously selected feature
-            if (prevFeature) {prevFeature.setStyle(styleOff);}
+            if (prevFeature) {prevFeature.setStyle(styleOff(prevFeature));}
             // Styling the closest feature
             closestFeature.setStyle(styleOn(closestFeature));
             // Memorising feature for next style reset
