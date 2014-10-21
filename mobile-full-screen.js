@@ -146,14 +146,20 @@ $().ready(function() {
     }
 
     // Geolocation
-    var geolocation = new ol.Geolocation({
-      projection: view.getProjection(),
-      tracking: true
-    });
-    geolocation.once('change:position', function() {
-      view.setCenter(geolocation.getPosition());
-      view.setResolution(2.388657133911758);
-    });
+    var geolocate = function () {
+      var geolocation = new ol.Geolocation({
+        projection: view.getProjection(),
+        tracking: true
+      });
+
+      geolocation.once('change:position', function() {
+        view.setCenter(geolocation.getPosition());
+        view.setResolution(2.388657133911758);
+        geolocation.setTracking(false);
+      });
+    }
+
+    $('#gpsDiv').on('click',geolocate);
 
     // Showing the form on feature click
     map.on('click',function(evt){

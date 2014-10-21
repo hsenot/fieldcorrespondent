@@ -34,6 +34,15 @@
         padding:20px;
         background-color: white;
       }
+      #gpsDiv {
+        position: absolute;
+        bottom: 0; right: 0;
+        margin: 5px;
+        padding: 5px;
+        cursor: pointer;
+        color:#FFF;
+        background-color:rgba(128,128,128,0.5);        
+      }
       /* Overrides zoom in/out placement to cater for the infoDiv */
       .ol-zoom {
         top: 2.5em;
@@ -48,7 +57,10 @@
     </div>    
     <div id="formDiv" style="display:none" class="well">
       <form role="form"></form>
-    </div> 
+    </div>
+    <div id="gpsDiv">
+      <img src="img/gps.png" width="20"/>
+    </div>
     <script src="ol3/resources/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
     <script src="ol3/resources/example-behaviour.js" type="text/javascript"></script>
     <script src="loader.js?id=mobile-full-screen" type="text/javascript"></script>
