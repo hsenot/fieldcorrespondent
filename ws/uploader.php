@@ -12,8 +12,8 @@
     // File size control
     $maxsize = 1; //Mb
     if ($_FILES['photo_input']['size'] > ($maxsize * 1048576)) {
-        $r->error = "Error: Max file size: $maxsize Mb";
-        return false;
+        $r->message = "Error: file rejected";
+        $r->error = "File size greater than max file size: $maxsize Mb";
     }
 
     // Supporting image file types
@@ -46,23 +46,21 @@
         $pms = json_decode($out,true);
         $url=$pms['data']['link'];
         if($url!=""){
-            $r->message = 'Upload successful';
+            $r->message = 'Imgur upload successful';
             $r->url_imgur = $url;
         }else{
-            $r->message = 'Upload unsuccessful';
+            $r->message = 'Error: Imgur upload unsuccessful';
             $r->error = $pms['data']['error'];
-            return false;
         } 
 
     } else {
         // If the file is not an image
-        $r->error = "Error: this image file type is not accepted (not jpeg, png nor gif).";
-        return false;
+        $r->message = 'Error: Imgur upload not attempted';
+        $r->error = "The file type is not accepted (not jpeg, png nor gif)";
     }
 
     // File path
     $path = "http://" . $_SERVER['SERVER_NAME'] . str_replace( basename($_SERVER['PHP_SELF']) , '', $_SERVER['REQUEST_URI'] );
-
     // Result data
     $r->url_local = $path . $filename;
 
@@ -78,6 +76,7 @@
     // Create an observation
     $sql = "INSERT INTO fc_observations(the_geom,form_data,feature_id,dataset_id,date_time) VALUES (ST_Transform(ST_SetSRID(ST_MakePoint(".$_REQUEST['map_view_x'].",".$_REQUEST['map_view_y']."),900913),4326),'".$form_data_json."',".$_REQUEST['feature_id'].",'".$_REQUEST['dataset_id']."',CURRENT_TIMESTAMP(2)) RETURNING cartodb_id";
     $r->observation_sql = $sql;
+
     // Initializing curl
     $ch = curl_init( "https://".$cartodb_username.".cartodb.com/api/v2/sql" );
     $query = http_build_query(array('q'=>$sql,'api_key'=>$cartodb_api_key));
@@ -87,10 +86,20 @@
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
     $result_not_parsed = curl_exec($ch);
     $result = json_decode($result_not_parsed);
-    // Observation ID
-    $r->observation_id = $result->rows[0]->cartodb_id;
 
-    // TODO: for all form fields, create an observation snippet to do this?
+    // Observation ID
+    if ($result->error)
+    {
+        // In case of an error, we may need to keep the query somewhere for subsequent replay (priority: no use data loss)
+        $r->message = "Error: The CartoDB query was not successful";
+        $r->error = $result->error[0];
+    }
+    else
+    {
+        // By construction (insert query with RETURNING), the $result data has 1 row, 1 column (cartodb_id)
+        $r->message = 'Imgur upload and CartoDB insert were successful';
+        $r->observation_id = $result->rows[0]->cartodb_id;
+    }
 
     // Return to JSON
     echo json_encode($r);

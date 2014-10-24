@@ -13,6 +13,10 @@ function getUrlParameter(sParam)
     }
 }
 
+// Smallest empty image
+// http://stackoverflow.com/questions/9126105/blank-image-encoded-as-data-uri
+var emptyImg = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';
+
 $().ready(function() {
   // Project ID: passed in URL or default to 1
   var proj_id = parseInt(getUrlParameter('id')) || 1;
@@ -316,10 +320,20 @@ $().ready(function() {
                               height: '100px',
                               border: '0px'
                             })
+                            .attr('src',emptyImg)
                           );
           div_s3.append(img_div);
           div_elt.append(div_s1).append(div_s2).append(div_s3);
-          var img_progress = $('<p>').append($('<span>'));
+          var img_progress = $('<p>').append($('<span>')
+                                        .css({
+                                          'display':'inline-block',
+                                          'height':'15px',
+                                          'background-color':'#51B11D',
+                                          'text-align':'center',
+                                          'font-size':'10px',
+                                          'line-height':'15px'
+                                        })
+                                      );
           div_elt.append(img_progress);
         }
 
@@ -364,6 +378,19 @@ $().ready(function() {
         });
       });
 
+      var formCleanup = function(response){
+        if (response)
+        {
+          // When in dev, display the JSON returned (contains the cartodb query)
+          if (getUrlParameter('mode')=='raw') {alert(JSON.stringify(response));}          
+        }
+        // Hiding the form
+        $('#formDiv').hide();
+        // Then cleaning it for subsequent uses
+        $('#thumb').attr('src',emptyImg);
+        clickedFeature = null;        
+      }
+
       // Adding the close button
       var b1 = $('<button>').attr('type','button')
             .css({
@@ -377,8 +404,7 @@ $().ready(function() {
             .html('Cancel')
             .on('click',function(){
               $('#formDiv').fadeTo(150,0,function(){
-                $('#formDiv').hide();
-                clickedFeature = null;
+                formCleanup();
               });
             });
       f.append(b1);
@@ -436,22 +462,20 @@ $().ready(function() {
                   var loaded = Math.ceil((e.loaded / e.total) * 100);
                   $('p span').css({
                       'width': loaded + "%"
-                  }).html(loaded + "%");
+                  }).html("Uploaded: "+ loaded + "%");
                 }
               }, false);
               return xhr;
             }
           }).done(function(response) {
             console.log(response);
+            // TODO - increase the badge label for this observation
+            // Essential: for the user to witness change
+            // Non-essential: refresh other user interactions
             if (response.url_imgur) {
-              // All good - hide the form
+              // All good - cleanup the form
               $('#formDiv').fadeTo(150,0,function(){
-                if (getUrlParameter('mode')=='raw')
-                {
-                  alert(JSON.stringify(response));
-                }                
-                $('#formDiv').hide();
-                clickedFeature = null;
+                formCleanup(response);
               });
             }
           });
