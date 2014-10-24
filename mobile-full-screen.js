@@ -17,6 +17,26 @@ function getUrlParameter(sParam)
 // http://stackoverflow.com/questions/9126105/blank-image-encoded-as-data-uri
 var emptyImg = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';
 
+// Loading spinner
+var spinOpts = {
+  lines: 13, // The number of lines to draw
+  length: 20, // The length of each line
+  width: 10, // The line thickness
+  radius: 50, // The radius of the inner circle
+  corners: 1, // Corner roundness (0..1)
+  rotate: 0, // The rotation offset
+  direction: 1, // 1: clockwise, -1: counterclockwise
+  color: '#000', // #rgb or #rrggbb or array of colors
+  speed: 1, // Rounds per second
+  trail: 60, // Afterglow percentage
+  shadow: true, // Whether to render a shadow
+  hwaccel: false, // Whether to use hardware acceleration
+  className: 'spinner', // The CSS class to assign to the spinner
+  zIndex: 2e9, // The z-index (defaults to 2000000000)
+  top: '50%', // Top position relative to parent
+  left: '50%' // Left position relative to parent
+};
+
 $().ready(function() {
   // Project ID: passed in URL or default to 1
   var proj_id = parseInt(getUrlParameter('id')) || 1;
@@ -30,6 +50,9 @@ $().ready(function() {
   // Style cache
   var featStyleCache = {}, featStyleCache2 = {};
   var clickedFeature;
+
+  // Start the spinner in the spinner div
+  $('#spinDiv').spin(spinOpts);
 
   // Promise to execute the map initialisation when all config AJAX calls have been fulfilled
   $.when( 
@@ -221,6 +244,8 @@ $().ready(function() {
           $('#htitle').html(clickedFeature.get(featNameAttr));
           $('#hdesc').html(clickedFeature.get('description'));
 
+          // Showing the GPS
+          $('#gpsDiv').hide();
           // Show the form
           $('#formDiv').show();
         });
@@ -388,12 +413,16 @@ $().ready(function() {
         }
         // Hiding the form
         $('#formDiv').hide();
+        // Showing the GPS
+        $('#gpsDiv').show();
         // Then cleaning it for subsequent uses
         $('#thumb').attr('src',emptyImg);
         // Reset progress bar
         $('#progressbar span').css({
           width:'0%'
         }).html('');
+        // Spin stop
+        $('#spinDiv').hide();
         clickedFeature = null;        
       }
 
@@ -428,8 +457,10 @@ $().ready(function() {
         .attr('class','btn btn-default')
         .html('Upload')
         .on('click',function(){
-          // TODO: loader indicating file is being uploaded
           console.log('Submitting form');
+
+          // Starting the spinner!
+          $('#spinDiv').show();
 
           // Create a new formdata
           var fd = new FormData();
