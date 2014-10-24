@@ -37,6 +37,8 @@ var spinOpts = {
   left: '50%' // Left position relative to parent
 };
 
+var map;
+
 $().ready(function() {
   // Project ID: passed in URL or default to 1
   var proj_id = parseInt(getUrlParameter('id')) || 1;
@@ -175,7 +177,7 @@ $().ready(function() {
       style: styleOff
     });
 
-    var map = new ol.Map({
+    map = new ol.Map({
       layers: [
         new ol.layer.Tile({
           source: new ol.source.XYZ({
@@ -218,8 +220,19 @@ $().ready(function() {
       });
 
       geolocation.once('change:position', function() {
+        // Zoom / pan animation effect
+        var pan = ol.animation.pan({duration: 500, source: (view.getCenter()) });
+        zoom = ol.animation.zoom({duration: 500, resolution: map.getView().getResolution()})
+        map.beforeRender(pan,zoom);
+
+        // Zoom only if we were far to start with
         view.setCenter(geolocation.getPosition());
-        view.setResolution(2.388657133911758);
+        if (view.getResolution() > 0.5971642834779395)
+        {
+          view.setResolution(0.5971642834779395);
+        }
+
+        // Stop tracking
         geolocation.setTracking(false);
       });
     }
@@ -419,7 +432,7 @@ $().ready(function() {
         $('#progressbar span').css({width:'0%'}).html('');
         // Spin stopping
         $('#spinDiv').hide();
-        
+
         clickedFeature = null;        
       }
 
