@@ -332,7 +332,7 @@ $().ready(function() {
                           .html(cfg[k].key);
           var div_s2 = $('<input>')
                           .attr('type', 'text')
-                          .attr('id', 'text_input');
+                          .attr('name', 'text_input');
           div_elt.append(div_s1).append(div_s2);
         }
 
