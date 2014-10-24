@@ -235,16 +235,11 @@ $().ready(function() {
       if (features.length > 0) {
         // TODO populate and show the form
         $('#formDiv').fadeTo(50,1,function(){
-          // Form reset
-          // Source: http://jquery-howto.blogspot.com.au/2013/08/jquery-form-reset.html
-          $('form')[0].reset();
-
           // Displaying attribute info
           clickedFeature = features[0];
           $('#htitle').html(clickedFeature.get(featNameAttr));
           $('#hdesc').html(clickedFeature.get('description'));
-
-          // Showing the GPS
+          // Hiding the GPS
           $('#gpsDiv').hide();
           // Show the form
           $('#formDiv').show();
@@ -415,14 +410,16 @@ $().ready(function() {
         $('#formDiv').hide();
         // Showing the GPS
         $('#gpsDiv').show();
-        // Then cleaning it for subsequent uses
+        // Form fields reset
+        // Source: http://jquery-howto.blogspot.com.au/2013/08/jquery-form-reset.html
+        $('form')[0].reset();
+        // Cleaning the image preview
         $('#thumb').attr('src',emptyImg);
-        // Reset progress bar
-        $('#progressbar span').css({
-          width:'0%'
-        }).html('');
-        // Spin stop
+        // Upload progress bar reset
+        $('#progressbar span').css({width:'0%'}).html('');
+        // Spin stopping
         $('#spinDiv').hide();
+        
         clickedFeature = null;        
       }
 
