@@ -324,7 +324,9 @@ $().ready(function() {
                           );
           div_s3.append(img_div);
           div_elt.append(div_s1).append(div_s2).append(div_s3);
-          var img_progress = $('<p>').append($('<span>')
+          var img_progress = $('<p>')
+                                  .attr('id','progressbar')
+                                  .append($('<span>')
                                         .css({
                                           'display':'inline-block',
                                           'height':'15px',
@@ -388,6 +390,10 @@ $().ready(function() {
         $('#formDiv').hide();
         // Then cleaning it for subsequent uses
         $('#thumb').attr('src',emptyImg);
+        // Reset progress bar
+        $('#progressbar span').css({
+          width:'0%'
+        }).html('');
         clickedFeature = null;        
       }
 
@@ -460,7 +466,7 @@ $().ready(function() {
               xhr.upload.addEventListener("progress", function(e) {
                 if (e.lengthComputable) {
                   var loaded = Math.ceil((e.loaded / e.total) * 100);
-                  $('p span').css({
+                  $('#progressbar span').css({
                       'width': loaded + "%"
                   }).html("Uploaded: "+ loaded + "%");
                 }
