@@ -323,7 +323,7 @@ $().ready(function() {
           div_elt = $('<div>').attr('class', 'form-group');
           var div_s1 = $('<label>')
                           .attr('for', 'photo_input')
-                          .html(cfg[k].key);
+                          .html('<h3>'+cfg[k].key+'</h3>');
           var div_s2 = $('<div>')
                           .attr('id','file_div_container')
                           .css({
@@ -387,7 +387,7 @@ $().ready(function() {
           div_elt = $('<div>').attr('class', 'form-group');
           var div_s1 = $('<label>')
                           .attr('for', 'text_input')
-                          .html(cfg[k].key);
+                          .html('<h3>'+cfg[k].key+'</h3>');
           var div_s2 = $('<input>')
                           .attr('type', 'text')
                           .attr('name', 'text_input');
