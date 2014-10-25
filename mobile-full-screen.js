@@ -345,15 +345,15 @@ $().ready(function() {
                             $('<img>')
                             .attr('src', 'img/addphoto.png')
                             .css({
-                              width: '100px',
+                              width: '60px',
+                              margin: '10px',
                               cursor: 'pointer'
                             })
                           );
           var img_div = $('<div>')
                           .attr('id','img_div_container')
                           .css({
-                            display: 'inline-block',
-                            'margin-left': '10px'
+                            display: 'inline-block'
                           })
                           .append(
                             $('<img>').attr('id', 'thumb')
@@ -390,7 +390,10 @@ $().ready(function() {
                           .html('<h3>'+cfg[k].key+'</h3>');
           var div_s2 = $('<input>')
                           .attr('type', 'text')
-                          .attr('name', 'text_input');
+                          .attr('name', 'text_input')
+                          .css({
+                            'margin':'0 10px'
+                          });
           div_elt.append(div_s1).append(div_s2);
         }
 
@@ -473,8 +476,8 @@ $().ready(function() {
           'margin-bottom': '10px',
           'margin-right': '20px'
         })
-        .attr('class','btn btn-default')
-        .html('Upload')
+        .attr('class','btn btn-success')
+        .html('OK')
         .on('click',function(){
           console.log('Submitting form');
 
