@@ -352,7 +352,8 @@ $().ready(function() {
           var img_div = $('<div>')
                           .attr('id','img_div_container')
                           .css({
-                            display: 'inline-block'
+                            display: 'inline-block',
+                            'margin-left': '10px'
                           })
                           .append(
                             $('<img>').attr('id', 'thumb')
