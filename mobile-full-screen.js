@@ -214,15 +214,23 @@ $().ready(function() {
 
     // Geolocation
     var geolocate = function () {
+      // TODO: we could color code the icon to indicate GPS being acquired, successfully acquired, ... 
       var geolocation = new ol.Geolocation({
         projection: view.getProjection(),
+        enableHighAccuracy: true,
         tracking: true
       });
 
       geolocation.once('change:position', function() {
         // Zoom / pan animation effect
-        var pan = ol.animation.pan({duration: 500, source: (view.getCenter()) });
-        zoom = ol.animation.zoom({duration: 500, resolution: map.getView().getResolution()})
+        var pan = ol.animation.pan({
+          duration: 500, 
+          source: view.getCenter()
+        });
+        var zoom = ol.animation.zoom({
+          duration: 500,
+          resolution: view.getResolution()
+        });
         map.beforeRender(pan,zoom);
 
         // Zoom only if we were far to start with
