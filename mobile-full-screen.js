@@ -45,6 +45,7 @@ $().ready(function() {
 
   // Previously highlighted feature
   var featNameAttr = 'name';
+  var featDescAttr = 'description';
   var featOpts = {};
   featOpts[featNameAttr] = 'Dummy';
   var prevFeature = new ol.Feature(featOpts);
@@ -171,7 +172,7 @@ $().ready(function() {
     // Should use a filter from the project characteristics
     var vectorLayer = new ol.layer.Vector({
       source: new ol.source.GeoJSON({
-        url: "https://groundtruth.cartodb.com/api/v2/sql?filename=fc_features&q=SELECT+f.feature_id,"+featNameAttr+",f.description,(select count(*) from fc_observations o where o.feature_id=f.feature_id) as badge,ST_Centroid(f.the_geom)+the_geom+FROM+public.fc_features+f+WHERE+f.dataset_id='"+cfg1[0].rows[0].dataset_id+"'&format=geojson",
+        url: "https://groundtruth.cartodb.com/api/v2/sql?filename=fc_features&q=SELECT+f.feature_id,"+featNameAttr+",f."+featDescAttr+",(select count(*) from fc_observations o where o.feature_id=f.feature_id) as badge,ST_Centroid(f.the_geom)+the_geom+FROM+public.fc_features+f+WHERE+f.dataset_id='"+cfg1[0].rows[0].dataset_id+"'&format=geojson",
         projection: 'EPSG:3857'
       }),
       style: styleOff
@@ -251,7 +252,10 @@ $().ready(function() {
     map.on('click',function(evt){
       var features = [];
       map.forEachFeatureAtPixel(evt.pixel, function(feature, layer) {
-        features.push(feature);
+        if (prevFeature.get('feature_id') == feature.get('feature_id'))
+        {
+          features.push(feature);
+        }
       });
       if (features.length > 0) {
         // TODO populate and show the form
@@ -259,7 +263,7 @@ $().ready(function() {
           // Displaying attribute info
           clickedFeature = features[0];
           $('#htitle').html(clickedFeature.get(featNameAttr));
-          $('#hdesc').html(clickedFeature.get('description'));
+          $('#hdesc').html(clickedFeature.get(featDescAttr));
           // Hiding the GPS
           $('#gpsDiv').hide();
           // Show the form
@@ -278,7 +282,7 @@ $().ready(function() {
         var closestFeature = vectorLayer.getSource().getClosestFeatureToCoordinate(c);
         if (closestFeature)
         {
-          if (closestFeature.get(featNameAttr) != prevFeature.get(featNameAttr))
+          if (closestFeature.get('feature_id') != prevFeature.get('feature_id'))
           {
             // Resetting the style of the previously selected feature
             if (prevFeature) {prevFeature.setStyle(styleOff(prevFeature));}
