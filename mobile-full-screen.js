@@ -158,11 +158,11 @@ $().ready(function() {
               opacity: 0.95,
               src: 'img/c.png'
             })),
-            zIndex: 1
+            zIndex: 2
           }),
           new ol.style.Style({
             text: createBadgeStyle(feature, resolution),
-            zIndex: 2
+            zIndex: 3
           })
         ];
         featStyleCache[styleKey] = styleArray;
