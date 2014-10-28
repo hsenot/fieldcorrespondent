@@ -218,8 +218,10 @@ $().ready(function() {
       // TODO: we could color code the icon to indicate GPS being acquired, successfully acquired, ... 
       var geolocation = new ol.Geolocation({
         projection: view.getProjection(),
-        enableHighAccuracy: true,
-        tracking: true
+        tracking: true,
+        trackingOptions: {
+          enableHighAccuracy: true
+        }
       });
 
       geolocation.once('change:position', function() {
