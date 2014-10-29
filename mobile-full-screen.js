@@ -454,6 +454,8 @@ $().ready(function() {
         clickedFeature = null;        
       }
 
+      var footer_elt = $('<div>').attr('class','panel-footer clearfix');
+
       // Adding the close button
       var b1 = $('<button>').attr('type','button')
             .css({
@@ -470,7 +472,6 @@ $().ready(function() {
                 formCleanup();
               });
             });
-      f.append(b1);
 
       // Adding the buttons
       var b2 = $('<button>')
@@ -545,7 +546,11 @@ $().ready(function() {
             }
           });
         });
-      f.append(b2);
+      // Adding buttons to footer
+      footer_elt.append(b1).append(b2);
+
+      // Adding footer to form
+      f.append(footer_elt);
     }
 
     // Instantiating the form building
