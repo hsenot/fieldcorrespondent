@@ -454,18 +454,20 @@ $().ready(function() {
         clickedFeature = null;        
       }
 
+      var separator_elt = $('<div>').css({
+              'height': '10px'
+            }).html('<hr>');
+
+      f.append(separator_elt);
+
       var footer_elt = $('<div>').attr('class','panel-footer clearfix');
 
       // Adding the close button
       var b1 = $('<button>').attr('type','button')
             .css({
-              'position':'absolute',
-              'bottom': 0,
-              'left': 0,
-              'margin-bottom': '10px',
               'margin-left': '20px'
             })
-            .attr('class','btn btn-default')
+            .attr('class','btn btn-default pull-left')
             .html('Cancel')
             .on('click',function(){
               $('#formDiv').fadeTo(150,0,function(){
@@ -477,13 +479,9 @@ $().ready(function() {
       var b2 = $('<button>')
         .attr('type','button')
         .css({
-          'position':'absolute',
-          'bottom': 0,
-          'right': 0,
-          'margin-bottom': '10px',
           'margin-right': '20px'
         })
-        .attr('class','btn btn-success')
+        .attr('class','btn btn-success pull-right')
         .html('OK')
         .on('click',function(){
           console.log('Submitting form');
