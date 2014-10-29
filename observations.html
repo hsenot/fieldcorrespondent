@@ -17,11 +17,103 @@
     <![endif]-->
   </head>
   <body>
-    <h1>Observations by project</h1>
+    <h1 class="text-center">Observations by project</h1>
+    <div id="obsDiv">
+      <table class="table">
+        <thead><td>Contributor</td><td>Contributions</td></thead>
+        <tbody>
+        </tbody>
+      </table>
+    </div>
 
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
     <!-- Include all compiled plugins (below), or include individual files as needed -->
     <script src="ol3/resources/bootstrap/js/bootstrap.min.js"></script>
+    <script>
+      $().ready(function(){
+        // TODO: parameterise the dataset_id
+        var url = "https://groundtruth.cartodb.com/api/v2/sql?filename=fc_observations&q=SELECT+cartodb_id,feature_id,date_time,form_data::json->>'photo'+as+photo,form_data::json->>'credit'+as+credit+FROM+public.fc_observations+f+WHERE+f.dataset_id='hobsons_bay_ho'&format=json";
+
+        var arr = [];
+        var compareByContribNb = function(a,b){
+          var a_key = Object.keys(a)[0];
+          var b_key = Object.keys(b)[0];
+          if (a[a_key].length < b[b_key].length)
+          {
+            return 1;
+          }
+          else
+          {
+            if (a[a_key].length > b[b_key].length)
+            {
+              return -1;
+            }
+          }
+        }
+
+        $.getJSON(url,
+          {},
+          function(data){
+            //
+            console.log(data.rows);
+            // Build an array suitable for the table of contributions
+            // element: {"contributor name": ["img1", "img2", ... , "imgn"]}
+            var new_obj={};
+            new_obj[data.rows[0].credit]=[data.rows[0].photo];
+            arr.push(new_obj);  
+
+            for (var i=1; i<data.rows.length; i++)
+            {
+              //
+              var found_in_arr = false;
+              for (var j=0; j<arr.length; j++)
+              {
+                if (arr[j].hasOwnProperty(data.rows[i].credit))
+                {
+                  arr[j][data.rows[i].credit].push(data.rows[i].photo);
+                  found_in_arr = true;
+                  break;
+                }
+              }
+              //
+              if (!found_in_arr)
+              {
+                var new_obj={};
+                new_obj[data.rows[i].credit]=[data.rows[i].photo];
+                arr.push(new_obj);
+              }
+            }
+
+            arr.sort(compareByContribNb);
+
+            var tr_elt;
+            // Now, we populate the table with columns built from arr elements
+            for (var k=0;k < arr.length; k++)
+            {
+              var key = Object.keys(arr[k])[0];
+              var photo_div = $('<div>');
+              for (var m=0;m<arr[k][key].length;m++)
+              {
+                var photo_url = arr[k][key][m];
+                if (photo_url)
+                {
+                  photo_url = photo_url.replace('.jpg','s.jpg');
+                }
+                photo_div.append(
+                  $('<img>').attr('src',photo_url).css({'width':'30px','padding':'1px'})
+                );
+              }
+              tr_elt = $('<tr>').append(
+                  $('<td>').html(key)
+                ).append(
+                  $('<td>').append(photo_div)
+                );
+              $('tbody').append(tr_elt);
+            }
+
+          });
+      });
+    </script>
   </body>
 </html>

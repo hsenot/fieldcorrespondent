@@ -220,8 +220,17 @@ $().ready(function() {
         projection: view.getProjection(),
         tracking: true,
         trackingOptions: {
-          enableHighAccuracy: true
+          enableHighAccuracy: true,
+          timeout: 20000,
+          maximumAge: 0
         }
+      });
+
+      geolocation.on('error', function() {
+        console.log("GPS position not acquired successfully");
+        // TODO: paint it red for a couple of seconds?
+        $('#gpsDiv').animate({opacity:0},500).animate({opacity:1},500)
+                  .animate({opacity:0},500).animate({opacity:1},500);
       });
 
       geolocation.once('change:position', function() {
