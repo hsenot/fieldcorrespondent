@@ -193,7 +193,7 @@ $().ready(function() {
         }),
         vectorLayer
       ],
-      renderer: exampleNS.getRendererFromQueryString(),
+      renderer: 'canvas',
       target: 'map',
       view: view
     });
