@@ -284,7 +284,7 @@ $().ready(function() {
 
     // Showing the form on feature click
     map.on('click',mapFeatureSelect);
-    map.on('touchend',mapFeatureSelect);
+    //map.on('touchend',mapFeatureSelect);
 
     // Changing style on map moveend
     map.on('moveend', function(evt) {
@@ -503,6 +503,8 @@ $().ready(function() {
         .html('OK')
         .on('click',function(){
           console.log('Submitting form');
+
+          // Blur all fields to regain full view (no virtual keyboard!)
 
           // Starting the spinner!
           $('#spinDiv').show();
