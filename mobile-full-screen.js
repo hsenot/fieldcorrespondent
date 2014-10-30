@@ -309,7 +309,13 @@ $().ready(function() {
     // Build the form based on retrieved interface elements
     var buildForm = function(cfg){
       // Locating the form
-      var f = $('form').attr("onsubmit","return false;");
+      var f = $('form').attr("onsubmit","return myFormSubmit();");
+      var myFormSubmit = function(event){
+        event.preventDefault();
+        $('#submitButton').click();
+        return false;
+      };
+
       var div_elt;
 
       //<div class="page-header">
@@ -486,6 +492,7 @@ $().ready(function() {
 
       // Adding the buttons
       var b2 = $('<button>')
+        .attr('id','submitButton')
         .attr('type','button')
         .css({
           'margin-right': '20px'
