@@ -259,8 +259,7 @@ $().ready(function() {
 
     $('#gpsDiv').on('click',geolocate);
 
-    // Showing the form on feature click
-    map.on('click',function(evt){
+    var mapFeatureSelect = function(evt){
       var features = [];
       map.forEachFeatureAtPixel(evt.pixel, function(feature, layer) {
         if (prevFeature.get('feature_id') == feature.get('feature_id'))
@@ -281,7 +280,11 @@ $().ready(function() {
           $('#formDiv').show();
         });
       }
-    });
+    };
+
+    // Showing the form on feature click
+    map.on('click',mapFeatureSelect);
+    map.on('touchend',mapFeatureSelect);
 
     // Changing style on map moveend
     map.on('moveend', function(evt) {
@@ -430,7 +433,7 @@ $().ready(function() {
       $('input[name=photo_input]').change(function(e) {
         var file = e.target.files[0];
         canvasResize(file, {
-          width: 800,
+          width: 1200,
           height: 0,
           crop: false,
           quality: 80,

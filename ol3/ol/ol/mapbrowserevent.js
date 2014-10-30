@@ -403,11 +403,8 @@ ol.MapBrowserEventHandler.prototype.handlePointerMove_ =
   // the exact same coordinates of the pointerdown event. To avoid a
   // 'false' touchmove event to be dispatched , we test if the pointer
   // effectively moved.
-    console.log("DownX:"+this.down_.clientX+",PointerX:"+pointerEvent.clientX);
-    console.log("DownY:"+this.down_.clientY+",PointerY:"+pointerEvent.clientY);
-    var tolerance = 5;
-    if (Math.abs(pointerEvent.clientX - this.down_.clientX)>tolerance ||
-        Math.abs(pointerEvent.clientY - this.down_.clientY)>tolerance) {
+  if (pointerEvent.clientX != this.down_.clientX ||
+      pointerEvent.clientY != this.down_.clientY) {
     this.dragged_ = true;
     var newEvent = new ol.MapBrowserPointerEvent(
         ol.MapBrowserEvent.EventType.POINTERDRAG, this.map_, pointerEvent);
