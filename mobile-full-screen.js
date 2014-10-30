@@ -41,7 +41,7 @@ var map;
 
 $().ready(function() {
   // Project ID: passed in URL or default to 1
-  var proj_id = parseInt(getUrlParameter('id')) || 1;
+  var proj_id = parseInt(getUrlParameter('id')) || 'ncjp';
 
   // Previously highlighted feature
   var featNameAttr = 'name';
@@ -61,22 +61,18 @@ $().ready(function() {
   $.when( 
     // Project specific information - should return a filter element for the feature query
     $.ajax({
-      url: "http://groundtruth.cartodb.com/api/v2/sql?q=SELECT p.cartodb_id,p.dataset_id,p.title,p.range,(SELECT ST_AsText(ST_Buffer(ST_Extent(f.the_geom),0)) FROM fc_features f WHERE f.dataset_id=p.dataset_id) the_geom FROM public.fc_projects p WHERE p.cartodb_id="+ proj_id
-    }), 
-    // Form structure (TODO: minimise number of calls by combining the 2 queries)
-    $.ajax({
-      url: "http://groundtruth.cartodb.com/api/v2/sql?q=SELECT * FROM public.fc_project_elements WHERE project_id='"+ proj_id +"' ORDER BY cartodb_id"
-    }) 
-  ).done(function( a1, a2 ) {
-    // a1 and a2 are arguments resolved for the page1 and page2 ajax requests, respectively.
+      url: "http://groundtruth.cartodb.com/api/v2/sql?q=SELECT p.cartodb_id,p.dataset_id,p.title,pe.type,pe.key,(SELECT ST_AsText(ST_Buffer(ST_Extent(f.the_geom),0)) FROM fc_features f WHERE f.dataset_id=p.dataset_id) the_geom FROM public.fc_projects p, fc_project_elements pe WHERE p.key='"+ proj_id+"' AND pe.project_id::int=p.cartodb_id ORDER BY interface_element_id"
+    })
+  ).done(function(a1) {
     // Each argument is an array with the following structure: [ data, statusText, jqXHR ]
-    initMap(a1,a2);
+    // When only 1 query, the result is the straight data object (not an array)
+    initMap([a1]);
 
     // Set project title on
-    $('#infoDiv span').html(a1[0].rows[0].title);
+    $('#infoDiv span').html(a1.rows[0].title);
   });
 
-  var initMap = function(cfg1,cfg2) {
+  var initMap = function(cfg1) {
 
     var viewOpts = {
       center: [0, 0],
@@ -583,7 +579,7 @@ $().ready(function() {
     }
 
     // Instantiating the form building
-    buildForm(cfg2[0].rows);
+    buildForm(cfg1[0].rows);
 
   }
 });
