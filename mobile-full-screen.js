@@ -41,7 +41,7 @@ var map;
 
 $().ready(function() {
   // Project ID: passed in URL or default to 1
-  var proj_id = parseInt(getUrlParameter('id')) || 'ncjp';
+  var proj_id = getUrlParameter('id') || 'ncjp';
 
   // Previously highlighted feature
   var featNameAttr = 'name';
