@@ -278,6 +278,10 @@ $().ready(function() {
           $('#gpsDiv').hide();
           // Show the form
           $('#formDiv').show();
+          // Activate photo input with a 500ms delay
+          window.setTimeout(function(){
+            $('input[name=photo_input]').attr('disabled',false);
+          },500);          
         });
       }
     };
@@ -358,6 +362,7 @@ $().ready(function() {
                             $('<input>')
                             .attr('type', 'file')
                             .attr('name', 'photo_input')
+                            .attr('disabled', true)
                           );
           var div_s3 = $('<div>')
                           .attr('id','photo_div_container')
@@ -426,7 +431,11 @@ $().ready(function() {
 
       // Click on photo img container should trigger the input file 'click' event 
       $('#photo_div_container').on('click',function(){
-        $('input[name=photo_input]').trigger('click');
+        var photo_input = $('input[name=photo_input]');
+        //if (!photo_input.is(":disabled"))
+        //{
+          photo_input.trigger('click');
+        //}
       });
 
       // When file changed, we resize it client-side
@@ -456,6 +465,8 @@ $().ready(function() {
         }
         // Hiding the form
         $('#formDiv').hide();
+        // Deactivate file input for next click
+        $('input[name=photo_input]').attr('disabled',true);
         // Showing the GPS
         $('#gpsDiv').show();
         // Form fields reset
