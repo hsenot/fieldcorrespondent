@@ -227,6 +227,8 @@ $().ready(function() {
         // TODO: paint it red for a couple of seconds?
         $('#gpsDiv').animate({opacity:0},500).animate({opacity:1},500)
                   .animate({opacity:0},500).animate({opacity:1},500);
+        // Stop tracking
+        geolocation.setTracking(false);
       });
 
       geolocation.once('change:position', function() {
@@ -560,7 +562,7 @@ $().ready(function() {
             }
           }).done(function(response) {
             console.log(response);
-            // TODO - increase the badge label for this observation
+            
             // Essential: for the user to witness change
             // Non-essential: refresh other user interactions
             if (response.url_imgur) {
@@ -568,6 +570,11 @@ $().ready(function() {
               $('#formDiv').fadeTo(150,0,function(){
                 formCleanup(response);
               });
+
+              // Increase the badge label for this observation
+              var oldBadge = clickedFeature.get('badge') || 0;
+              clickedFeature.set('badge',parseInt(oldBadge)+1);
+              clickedFeature.setStyle(styleOn(clickedFeature));
             }
           });
         });
