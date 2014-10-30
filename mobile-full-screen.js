@@ -309,7 +309,7 @@ $().ready(function() {
     // Build the form based on retrieved interface elements
     var buildForm = function(cfg){
       // Locating the form
-      var f = $('form');
+      var f = $('form').attr("onsubmit","return false;");
       var div_elt;
 
       //<div class="page-header">
