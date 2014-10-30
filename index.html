@@ -52,10 +52,14 @@
       }
       #gpsDiv {
         position: absolute;
-        top:7em;
-        left: 0;
-        margin: 5px;
-        padding: 5px;
+        bottom: 0.75em;
+        right: 0.75em;
+        height: 2.75em;
+        width: 2.75em;
+        border-radius: 2px;
+        border-color:#fff;
+        margin: 0px;
+        padding: 2px;
         cursor: pointer;
         background-color:rgba(128,128,128,0.5);    
       }
@@ -72,6 +76,8 @@
         top: 2.5em;
       }
       .ol-control button {
+        height: 1.5em;
+        width: 1.5em;
         background-color:rgba(128,128,128,0.5);
       }
       .ol-control button:hover {
@@ -99,8 +105,8 @@
     <div id="formDiv" style="display:none" class="panel panel-default">
       <form role="form"></form>
     </div>
-    <div id="gpsDiv">
-      <img src="img/gps.png" width="20"/>
+    <div id="gpsDiv" class="ol-control">
+      <img src="img/gps.png"/>
     </div>
     <!--script src="ol3/resources/bootstrap/js/bootstrap.min.js" type="text/javascript"></script-->
     <script src="ol3/resources/example-behaviour.js" type="text/javascript"></script>
