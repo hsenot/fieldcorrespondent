@@ -39,33 +39,6 @@ var spinOpts = {
 
 var map;
 
-/**
- * @param {ol.pointer.PointerEvent} pointerEvent Pointer event.
- * @private
- */
-ol.MapBrowserEventHandler.prototype.handlePointerMove_ =
-    function(pointerEvent) {
-  var tolerance = 5;
-  // Fix IE10 on windows Surface : When you tap the tablet, it triggers
-  // multiple pointermove events between pointerdown and pointerup with
-  // the exact same coordinates of the pointerdown event. To avoid a
-  // 'false' touchmove event to be dispatched , we test if the pointer
-  // effectively moved.
-  if (Math.abs(pointerEvent.clientX - this.down_.clientX)>tolerance ||
-      Math.abs(pointerEvent.clientY - this.down_.clientY)>tolerance) {
-    this.dragged_ = true;
-    var newEvent = new ol.MapBrowserPointerEvent(
-        ol.MapBrowserEvent.EventType.POINTERDRAG, this.map_, pointerEvent);
-    this.dispatchEvent(newEvent);
-  }
-
-  // Some native android browser triggers mousemove events during small period
-  // of time. See: https://code.google.com/p/android/issues/detail?id=5491 or
-  // https://code.google.com/p/android/issues/detail?id=19827
-  // ex: Galaxy Tab P3110 + Android 4.1.1
-  pointerEvent.preventDefault();
-};
-
 $().ready(function() {
   // Project ID: passed in URL or default to 1
   var proj_id = parseInt(getUrlParameter('id')) || 1;
