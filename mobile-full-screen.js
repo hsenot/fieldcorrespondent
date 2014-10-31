@@ -168,7 +168,7 @@ $().ready(function() {
     // Should use a filter from the project characteristics
     var vectorLayer = new ol.layer.Vector({
       source: new ol.source.GeoJSON({
-        url: "https://groundtruth.cartodb.com/api/v2/sql?filename=fc_features&q=SELECT+f.feature_id,"+featNameAttr+",f."+featDescAttr+",(select count(*) from fc_observations o where o.feature_id=f.feature_id) as badge,ST_Centroid(f.the_geom)+the_geom+FROM+public.fc_features+f+WHERE+f.dataset_id='"+cfg1[0].rows[0].dataset_id+"'&format=geojson",
+        url: "https://groundtruth.cartodb.com/api/v2/sql?filename=fc_features&q=SELECT+f.feature_id,"+featNameAttr+",f."+featDescAttr+",(select count(*) from fc_observations o where o.feature_id=f.feature_id AND o.dataset_id='"+cfg1[0].rows[0].dataset_id+"') as badge,ST_Centroid(f.the_geom)+the_geom+FROM+public.fc_features+f+WHERE+f.dataset_id='"+cfg1[0].rows[0].dataset_id+"'&format=geojson",
         projection: 'EPSG:3857'
       }),
       style: styleOff
