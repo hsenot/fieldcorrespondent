@@ -95,13 +95,15 @@
               var photo_div = $('<div>');
               for (var m=0;m<arr[k][key].length;m++)
               {
-                var photo_url = arr[k][key][m];
+                var photo_url = arr[k][key][m], photo_thumb;
                 if (photo_url)
                 {
-                  photo_url = photo_url.replace('.jpg','s.jpg');
+                  photo_thumb = photo_url.replace('.jpg','s.jpg');
                 }
                 photo_div.append(
-                  $('<img>').attr('src',photo_url).css({'width':'30px','padding':'1px'})
+                  $('<a>').attr('href',photo_url).attr('target','_blank').append(
+                    $('<img>').attr('src',photo_thumb).css({'width':'30px','padding':'1px'})
+                  )
                 );
               }
               tr_elt = $('<tr>').append(
