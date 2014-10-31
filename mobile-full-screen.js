@@ -217,7 +217,7 @@ $().ready(function() {
         tracking: true,
         trackingOptions: {
           enableHighAccuracy: true,
-          timeout: 20000,
+          timeout: 30000,
           maximumAge: 0
         }
       });

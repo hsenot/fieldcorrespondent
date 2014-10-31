@@ -33,7 +33,7 @@
     <script>
       $().ready(function(){
         // TODO: parameterise the dataset_id
-        var url = "https://groundtruth.cartodb.com/api/v2/sql?filename=fc_observations&q=SELECT+cartodb_id,feature_id,date_time,form_data::json->>'photo'+as+photo,form_data::json->>'credit'+as+credit+FROM+public.fc_observations+f+WHERE+f.dataset_id='hobsons_bay_ho'&format=json";
+        var url = "https://groundtruth.cartodb.com/api/v2/sql?filename=fc_observations&q=SELECT+cartodb_id,feature_id,date_time,form_data::json->>'photo'+as+photo,form_data::json->>'credit'+as+credit+FROM+public.fc_observations+f+WHERE+f.dataset_id='vmplan_plan_overlay_ho_331'&format=json";
 
         var arr = [];
         var compareByContribNb = function(a,b){
