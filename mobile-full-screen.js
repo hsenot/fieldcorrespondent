@@ -55,7 +55,8 @@ $().ready(function() {
   var clickedFeature;
 
   // Start the spinner in the spinner div
-  $('#spinDiv').spin(spinOpts);
+  var target = document.getElementById('spinDiv');
+  var spinner = new Spinner(spinOpts).spin(target);
 
   // Promise to execute the map initialisation when all config AJAX calls have been fulfilled
   $.when( 
@@ -522,7 +523,7 @@ $().ready(function() {
           var fd = new FormData();
 
           // Photo input
-          fd.append("photo_input", $.canvasResize('dataURLtoBlob', $('#thumb').attr('src')));
+          fd.append("photo_input", canvasResize('dataURLtoBlob', $('#thumb').attr('src')));
 
           // Serialize will skip file input
           var other_data = $('form').serializeArray();
