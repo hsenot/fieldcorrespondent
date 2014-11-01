@@ -613,13 +613,16 @@ $().ready(function() {
         .on('click',function(){
           //console.log('Submitting form');
 
+          // Disabling the submit button straight away
+          $('#submitButton').attr('disabled',false);  
+
           // Blur all fields to regain full view (no virtual keyboard!)
           $('input').blur();  
 
           // Starting the spinner!
           window.setTimeout(function(){
             $('#spinDiv').show();
-          },500);
+          },250);
 
           // Create a new formdata
           var fd = new FormData();
