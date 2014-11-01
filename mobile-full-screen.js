@@ -86,7 +86,7 @@ $().ready(function() {
     var d = loadFromLocalStorage(), expandedQuery = "";
     if (d["Contributor"])
     {
-      expandedQuery = ",'"+d["Contributor"]+"' AS contributor,(SELECT count(*) FROM fc_observations o WHERE form_data::json->>'credit'='"+d["Contributor"]+"' AND o.dataset_id=p.dataset_id) AS user_obs_count,(SELECT count(distinct feature_id) FROM fc_observations o WHERE form_data::json->>'credit'='"+d["Contributor"]+"' AND o.dataset_id=p.dataset_id) AS user_feat_count";
+      expandedQuery = ",'"+d["Contributor"]+"' AS contributor,(SELECT count(*) FROM fc_observations o WHERE form_data::json->>'credit'='"+d["Contributor"]+"' AND o.dataset_id=p.dataset_id) AS user_obs_count,(SELECT count(distinct feature_id) FROM fc_observations o WHERE form_data::json->>'credit'='"+d["Contributor"]+"' AND o.dataset_id=p.dataset_id) AS user_feat_count,(SELECT rank() OVER (ORDER BY count(*) desc) FROM fc_observations o WHERE form_data::json->>'credit'='"+d["Contributor"]+"' AND o.dataset_id=p.dataset_id) as user_rank";
     }
     $.ajax({
       url: "http://groundtruth.cartodb.com/api/v2/sql?q=SELECT (SELECT count(*) FROM fc_features f WHERE f.dataset_id=p.dataset_id) as tot_feat_count,(SELECT count(distinct f.feature_id) FROM fc_features f,fc_observations o WHERE f.dataset_id=p.dataset_id AND f.feature_id=o.feature_id AND o.dataset_id=p.dataset_id) as obs_feat_count"+expandedQuery+" FROM public.fc_projects p WHERE p.key='"+ proj_id+"'"
@@ -102,7 +102,24 @@ $().ready(function() {
       {
         $('#user_name').html(data.contributor);
         $('#stats_user').html(data.user_obs_count+' observation'+(data.user_obs_count>1?'s':'')+' on '+data.user_feat_count+' site'+(data.user_feat_count>1?'s':''));
-        $('#my_observations_link').html("All "+data.contributor+"'s contributions");
+        var num_suff;
+        switch (data.user_rank % 10)
+        {
+          case 1:
+            num_suff = 'st';
+            break;
+          case 2:
+            num_suff = 'nd';
+            break;
+          case 3:
+            num_suff = 'rd';
+            break;
+          default:
+            num_suff = 'th'; 
+        }
+        $('#user_rank').html(data.user_rank+num_suff+' biggest contributor');
+        $('#my_observations_link').html("All "+data.contributor+"'s contributions")
+          .attr('href',$('#observations_link').attr('href')+proj_id);
       }
     });
   }
