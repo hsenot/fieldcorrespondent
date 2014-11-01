@@ -518,7 +518,9 @@ $().ready(function() {
           $('input').blur();  
 
           // Starting the spinner!
-          $('#spinDiv').show();
+          window.setTimeout(function(){
+            $('#spinDiv').show();
+          },500);
 
           // Create a new formdata
           var fd = new FormData();
