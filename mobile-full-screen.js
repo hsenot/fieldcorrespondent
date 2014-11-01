@@ -37,7 +37,17 @@ var spinOpts = {
   left: '50%' // Left position relative to parent
 };
 
-var map;
+var map, localStorageItem = 'fieldcorrespondent-data';
+
+// Loading from local storage
+var loadFromLocalStorage = function(){
+  if (localStorage)
+  {
+    var loadedData = JSON.parse(localStorage.getItem(localStorageItem));
+    console.log("Loaded from local storage"+JSON.stringify(loadedData));
+    return loadedData || {};
+  }
+}
 
 $().ready(function() {
   // Project ID: passed in URL or default to 1
@@ -64,9 +74,23 @@ $().ready(function() {
     $('#dashTeaser').css({'opacity':0,'cursor':'default'});
   });
   $('#fulldash').click(function(){
-    $('#minidashDiv').animate({left:-310},200);
+    $('#minidashDiv').animate({left:-260},200);
     $('#dashTeaser').css({'opacity':1,'cursor':'pointer'});
   });
+
+  var refreshDash = function(){
+    $.ajax({
+      url: "http://groundtruth.cartodb.com/api/v2/sql?q=SELECT (SELECT count(*) FROM fc_features f WHERE f.dataset_id=p.dataset_id) as tot_feat_count,(SELECT count(distinct f.feature_id) FROM fc_features f,fc_observations o WHERE f.dataset_id=p.dataset_id AND f.feature_id=o.feature_id AND o.dataset_id=p.dataset_id) as obs_feat_count FROM public.fc_projects p WHERE p.key='"+ proj_id+"'"
+    }).done(function(response){
+      var data = response.rows[0];
+      // Injecting the results in the stat tab
+      var pct_complete = Math.round(parseFloat(data.obs_feat_count)/data.tot_feat_count*10)/10;
+      $('#stats_proj_teaser').html(pct_complete+'%');
+      $('#stats_proj').html(pct_complete + '% ('+data.obs_feat_count+' sites visited out of '+data.tot_feat_count+')');
+      $('#observations_link').attr('href',$('#observations_link').attr('href')+proj_id);
+    });
+  }
+  refreshDash();
 
   // Promise to execute the map initialisation when all config AJAX calls have been fulfilled
   $.when( 
@@ -80,7 +104,7 @@ $().ready(function() {
     initMap([a1]);
 
     // Set project title on
-    $('#infoDiv span').html(a1.rows[0].title);
+    $('.proj_title').html(a1.rows[0].title);
   });
 
   var initMap = function(cfg1) {
@@ -283,6 +307,17 @@ $().ready(function() {
           clickedFeature = features[0];
           $('#htitle').html(clickedFeature.get(featNameAttr));
           $('#hdesc').html(clickedFeature.get(featDescAttr));
+
+          // Loading persistent values from local storage
+          var s = loadFromLocalStorage();
+          for (var k in s)
+          {
+            if (s.hasOwnProperty(k))
+            {
+              $('input[key='+k+']').val(s[k]);
+            }
+          }
+
           // Hiding the GPS
           $('#gpsDiv').hide();
           // Show the form
@@ -428,6 +463,7 @@ $().ready(function() {
           var div_s2 = $('<input>')
                           .attr('type', 'text')
                           .attr('name', 'text_input')
+                          .attr('key', cfg[k].key)
                           .css({
                             'margin':'0 10px'
                           });
@@ -539,10 +575,19 @@ $().ready(function() {
           fd.append("photo_input", canvasResize('dataURLtoBlob', $('#thumb').attr('src')));
 
           // Serialize will skip file input
-          var other_data = $('form').serializeArray();
+          var other_data = $('form').serializeArray(), local_data = {};
           $.each(other_data,function(key,input){
               fd.append(input.name,input.value);
+              // Persisting all field values marked as persistent
+              local_data[$('input[name='+input.name+']').attr('key')]=input.value;
           });
+
+          // 
+          if (localStorage)
+          {
+            console.log("Persisting in local storage:"+JSON.stringify(local_data));
+            localStorage.setItem(localStorageItem, JSON.stringify(local_data));
+          }
 
           // Other data
           fd.append("dataset_id",cfg1[0].rows[0].dataset_id);
