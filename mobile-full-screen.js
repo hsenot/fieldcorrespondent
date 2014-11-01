@@ -86,7 +86,7 @@ $().ready(function() {
     var d = loadFromLocalStorage(), expandedQuery = "";
     if (d["Contributor"])
     {
-      expandedQuery = ",'"+d["Contributor"]+"' AS contributor,(SELECT count(*) FROM fc_observations o WHERE form_data::json->>'credit'='"+d["Contributor"]+"' AND o.dataset_id=p.dataset_id) AS user_obs_count,(SELECT count(distinct feature_id) FROM fc_observations o WHERE form_data::json->>'credit'='"+d["Contributor"]+"' AND o.dataset_id=p.dataset_id) AS user_feat_count,(SELECT rank() OVER (ORDER BY count(*) desc) FROM fc_observations o WHERE form_data::json->>'credit'='"+d["Contributor"]+"' AND o.dataset_id=p.dataset_id) as user_rank";
+      expandedQuery = ",'"+d["Contributor"]+"' AS contributor,(SELECT count(*) FROM fc_observations o WHERE form_data::json->>'credit'='"+d["Contributor"]+"' AND o.dataset_id=p.dataset_id) AS user_obs_count,(SELECT count(distinct feature_id) FROM fc_observations o WHERE form_data::json->>'credit'='"+d["Contributor"]+"' AND o.dataset_id=p.dataset_id) AS user_feat_count,(SELECT rank FROM (SELECT o.form_data::json->>'credit' as who,rank() OVER (order BY count(*) desc) as rank FROM fc_observations o WHERE o.dataset_id=p.dataset_id GROUP BY form_data::json->>'credit') t WHERE who='"+d["Contributor"]+"') as user_rank";
     }
     $.ajax({
       url: "http://groundtruth.cartodb.com/api/v2/sql?q=SELECT (SELECT count(*) FROM fc_features f WHERE f.dataset_id=p.dataset_id) as tot_feat_count,(SELECT count(distinct f.feature_id) FROM fc_features f,fc_observations o WHERE f.dataset_id=p.dataset_id AND f.feature_id=o.feature_id AND o.dataset_id=p.dataset_id) as obs_feat_count"+expandedQuery+" FROM public.fc_projects p WHERE p.key='"+ proj_id+"'"
