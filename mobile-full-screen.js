@@ -44,7 +44,7 @@ var loadFromLocalStorage = function(){
   if (localStorage)
   {
     var loadedData = JSON.parse(localStorage.getItem(localStorageItem));
-    console.log("Loaded from local storage"+JSON.stringify(loadedData));
+    console.log("Loaded from local storage: "+JSON.stringify(loadedData));
     return loadedData || {};
   }
 }
@@ -372,7 +372,7 @@ $().ready(function() {
 
     var mapHighlightClosest = function(){
       var c = map.getView().getCenter();
-      console.log('Center: '+c[0]+','+c[1]);
+      //console.log('Center: '+c[0]+','+c[1]);
 
       if (c[0] != 0 && c[1] != 0)
       {
@@ -536,6 +536,9 @@ $().ready(function() {
               'width':width/height*100+'px'
             });
             $('#thumb').attr('src', data);
+
+            // Making the submit button clickable
+            $('#submitButton').attr('disabled',false);
           }
         });
       });
@@ -561,6 +564,8 @@ $().ready(function() {
         $('#progressbar span').css({width:'0%'}).html('');
         // Spin stopping
         $('#spinDiv').hide();
+        // Making the submit button clickable for next entry
+        $('#submitButton').attr('disabled',true);        
 
         clickedFeature = null;        
       }
@@ -590,13 +595,14 @@ $().ready(function() {
       var b2 = $('<button>')
         .attr('id','submitButton')
         .attr('type','button')
+        .attr('disabled',true)
         .css({
           'margin-right': '20px'
         })
         .attr('class','btn btn-success pull-right')
         .html('OK')
         .on('click',function(){
-          console.log('Submitting form');
+          //console.log('Submitting form');
 
           // Blur all fields to regain full view (no virtual keyboard!)
           $('input').blur();  
@@ -623,7 +629,7 @@ $().ready(function() {
           // 
           if (localStorage)
           {
-            console.log("Persisting in local storage:"+JSON.stringify(local_data));
+            console.log("Persisting in local storage: "+JSON.stringify(local_data));
             localStorage.setItem(localStorageItem, JSON.stringify(local_data));
           }
 
