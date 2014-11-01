@@ -93,7 +93,7 @@ $().ready(function() {
     }).done(function(response){
       var data = response.rows[0];
       // Injecting the results in the project stat
-      var pct_complete = Math.round(parseFloat(data.obs_feat_count)/data.tot_feat_count*10)/10;
+      var pct_complete = Math.round(parseFloat(data.obs_feat_count)/data.tot_feat_count*10*100)/10;
       $('#stats_proj_teaser').html(pct_complete+'%');
       $('#stats_proj').html(pct_complete + '% ('+data.obs_feat_count+' sites visited out of '+data.tot_feat_count+')');
       $('#observations_link').attr('href',$('#observations_link').attr('href')+proj_id);
