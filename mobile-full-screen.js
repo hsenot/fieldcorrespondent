@@ -58,6 +58,16 @@ $().ready(function() {
   var target = document.getElementById('spinDiv');
   var spinner = new Spinner(spinOpts).spin(target);
 
+  // Minidash / dashteaser div: click behaviour
+  $('#dashTeaser').click(function(){
+    $('#minidashDiv').animate({left:0},200);
+    $('#dashTeaser').css({'opacity':0,'cursor':'default'});
+  });
+  $('#fulldash').click(function(){
+    $('#minidashDiv').animate({left:-310},200);
+    $('#dashTeaser').css({'opacity':1,'cursor':'pointer'});
+  });
+
   // Promise to execute the map initialisation when all config AJAX calls have been fulfilled
   $.when( 
     // Project specific information - should return a filter element for the feature query

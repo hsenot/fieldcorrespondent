@@ -72,6 +72,15 @@
         background-color:rgba(45,45,45,0.5);
         z-index:10;
       }
+      #minidashDiv{
+        position: absolute;
+        left:-310px;
+        width:350px;
+        bottom:0;
+        color:white;
+        font-weight:bold;
+        overflow:hidden;
+      }
       /* Overrides zoom in/out placement to cater for the infoDiv */
       .ol-zoom {
         top: 2.5em;
@@ -102,7 +111,25 @@
     <div id="map" class="map"></div>
     <div id="infoDiv" class="alert-info">
       <span>Loading ...</span>
-    </div>    
+    </div>
+    <div id="minidashDiv">
+      <div id="fulldash" style="margin:5px 0px 10px;background-color:rgba(128,128,128,0.75);float: left;width: 300px;padding:5px;border-radius: 0px 4px 4px 0px;border-color:#fff;">
+        <div id="stats_proj" style="border:1px;">
+          <p>## Hobsons Bay Heritage Overlays</p>
+          <p>43% (331 sites visited out of 721)</p>
+          <p>link to all contributions</p>
+        </div>
+        <div id="stats_me" style="border:1px;">
+          <p>## Simon</p>
+          <p>5 observations on 3 sites</p>
+          <p>10th biggest contributor</p>
+          <p>link to Simon's contributions</p>
+        </div>        
+      </div>
+      <div id="dashTeaser" style="height:30px;width:30px;background-color:rgba(128,128,128,0.5);float: left;margin:185px 0 0 0;padding:5px;text-align:center;border-radius: 0px 4px 4px 0px;border-color:#fff; cursor:pointer;">
+        <p style="margin:5px 0;">43%</p>
+      </div>
+    </div>
     <div id="formDiv" style="display:none" class="panel panel-default">
       <form role="form"></form>
     </div>
