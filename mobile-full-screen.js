@@ -69,25 +69,41 @@ $().ready(function() {
   var spinner = new Spinner(spinOpts).spin(target);
 
   // Minidash / dashteaser div: click behaviour
-  $('#dashTeaser').click(function(){
+  var openDash = function(){
     $('#minidashDiv').animate({left:0},200);
-    $('#dashTeaser').css({'opacity':0,'cursor':'default'});
-  });
-  $('#fulldash').click(function(){
+    $('#dashTeaser').css({'opacity':0,'cursor':'default'});    
+  }
+  $('#dashTeaser').click(openDash);
+
+  var closeDash = function(){
     $('#minidashDiv').animate({left:-260},200);
-    $('#dashTeaser').css({'opacity':1,'cursor':'pointer'});
-  });
+    $('#dashTeaser').css({'opacity':1,'cursor':'pointer'});    
+  }
+  $('#fulldash').click(closeDash);
 
   var refreshDash = function(){
+    // If the local storage contains a contributor name, use that to expand the query
+    var d = loadFromLocalStorage(), expandedQuery = "";
+    if (d["Contributor"])
+    {
+      expandedQuery = ",'"+d["Contributor"]+"' AS contributor,(SELECT count(*) FROM fc_observations o WHERE form_data::json->>'credit'='"+d["Contributor"]+"' AND o.dataset_id=p.dataset_id) AS user_obs_count,(SELECT count(distinct feature_id) FROM fc_observations o WHERE form_data::json->>'credit'='"+d["Contributor"]+"' AND o.dataset_id=p.dataset_id) AS user_feat_count";
+    }
     $.ajax({
-      url: "http://groundtruth.cartodb.com/api/v2/sql?q=SELECT (SELECT count(*) FROM fc_features f WHERE f.dataset_id=p.dataset_id) as tot_feat_count,(SELECT count(distinct f.feature_id) FROM fc_features f,fc_observations o WHERE f.dataset_id=p.dataset_id AND f.feature_id=o.feature_id AND o.dataset_id=p.dataset_id) as obs_feat_count FROM public.fc_projects p WHERE p.key='"+ proj_id+"'"
+      url: "http://groundtruth.cartodb.com/api/v2/sql?q=SELECT (SELECT count(*) FROM fc_features f WHERE f.dataset_id=p.dataset_id) as tot_feat_count,(SELECT count(distinct f.feature_id) FROM fc_features f,fc_observations o WHERE f.dataset_id=p.dataset_id AND f.feature_id=o.feature_id AND o.dataset_id=p.dataset_id) as obs_feat_count"+expandedQuery+" FROM public.fc_projects p WHERE p.key='"+ proj_id+"'"
     }).done(function(response){
       var data = response.rows[0];
-      // Injecting the results in the stat tab
+      // Injecting the results in the project stat
       var pct_complete = Math.round(parseFloat(data.obs_feat_count)/data.tot_feat_count*10)/10;
       $('#stats_proj_teaser').html(pct_complete+'%');
       $('#stats_proj').html(pct_complete + '% ('+data.obs_feat_count+' sites visited out of '+data.tot_feat_count+')');
       $('#observations_link').attr('href',$('#observations_link').attr('href')+proj_id);
+
+      if (data.contributor, data.user_obs_count && data.user_feat_count)
+      {
+        $('#user_name').html(data.contributor);
+        $('#stats_user').html(data.user_obs_count+' observations on '+data.user_feat_count+' sites');
+        $('#my_observations_link').html("All "+data.contributor+"'s contributions");
+      }
     });
   }
   refreshDash();
@@ -625,6 +641,11 @@ $().ready(function() {
             // Essential: for the user to witness change
             // Non-essential: refresh other user interactions
             if (response.url_imgur) {
+              // Refresh the dashboard stats and show them for a few seconds
+              refreshDash();
+              openDash();
+              window.setTimeout(closeDash,4000);
+
               // All good - cleanup the form
               $('#formDiv').fadeTo(150,0,function(){
                 formCleanup(response);
