@@ -106,18 +106,15 @@ $().ready(function() {
         switch (data.user_rank % 10)
         {
           case 1:
-            num_suff = 'st';
-            break;
+            num_suff = 'st';break;
           case 2:
-            num_suff = 'nd';
-            break;
+            num_suff = 'nd';break;
           case 3:
-            num_suff = 'rd';
-            break;
+            num_suff = 'rd';break;
           default:
             num_suff = 'th'; 
         }
-        $('#user_rank').html(data.user_rank+num_suff+' biggest contributor');
+        $('#user_rank').html(data.user_rank+'<sup>'+num_suff+'</sup> biggest contributor');
         $('#my_observations_link').html("All "+data.contributor+"'s contributions")
           .attr('href',$('#observations_link').attr('href')+proj_id);
       }
