@@ -101,7 +101,7 @@ $().ready(function() {
       if (data.contributor, data.user_obs_count && data.user_feat_count)
       {
         $('#user_name').html(data.contributor);
-        $('#stats_user').html(data.user_obs_count+' observations on '+data.user_feat_count+' sites');
+        $('#stats_user').html(data.user_obs_count+' observation'+(data.user_obs_count>1?'s':'')+' on '+data.user_feat_count+' site'+(data.user_feat_count>1?'s':''));
         $('#my_observations_link').html("All "+data.contributor+"'s contributions");
       }
     });
