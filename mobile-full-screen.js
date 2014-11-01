@@ -515,6 +515,7 @@ $().ready(function() {
           console.log('Submitting form');
 
           // Blur all fields to regain full view (no virtual keyboard!)
+          $('input').blur();  
 
           // Starting the spinner!
           $('#spinDiv').show();
