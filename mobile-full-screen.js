@@ -475,6 +475,7 @@ $().ready(function() {
                             .attr('src',emptyImg)
                           );
           div_s3.append(img_div);
+
           div_elt.append(div_s1).append(div_s2).append(div_s3);
           var img_progress = $('<p>')
                                   .attr('id','progressbar')
@@ -523,6 +524,11 @@ $().ready(function() {
 
       // When file changed, we resize it client-side
       $('input[name=photo_input]').change(function(e) {
+        // A mini spinner to wait for image resizing
+        var miniSpinOpts = $.extend(spinOpts,{lines:8,length:10,width:2,radius:10});
+        var minitarget = document.getElementById('img_div_container');
+        var minispinner = new Spinner(miniSpinOpts).spin(minitarget);
+
         var file = e.target.files[0];
         canvasResize(file, {
           width: 1200,
@@ -536,6 +542,9 @@ $().ready(function() {
               'width':width/height*100+'px'
             });
             $('#thumb').attr('src', data);
+
+            // Stopping the mini-spinner
+            minispinner.stop();
 
             // Making the submit button clickable
             $('#submitButton').attr('disabled',false);
