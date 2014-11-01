@@ -231,7 +231,7 @@ $().ready(function() {
         geolocation.setTracking(false);
       });
 
-      geolocation.once('change:position', function() {
+      geolocation.on('change:position', function() {
         // Zoom / pan animation effect
         var pan = ol.animation.pan({
           duration: 500, 
