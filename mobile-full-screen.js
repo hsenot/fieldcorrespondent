@@ -116,7 +116,7 @@ $().ready(function() {
         }
         $('#user_rank').html(data.user_rank+'<sup>'+num_suff+'</sup> biggest contributor');
         $('#my_observations_link').html("All "+data.contributor+"'s contributions")
-          .attr('href',$('#observations_link').attr('href')+proj_id);
+          .attr('href',$('#my_observations_link').attr('href')+proj_id);
       }
     });
   }
@@ -249,7 +249,11 @@ $().ready(function() {
               "http://3.base.maps.api.here.com/maptiler/2.1/maptile/newest/normal.day/{z}/{x}/{y}/256/png8?lg=ENG&app_id=NIEF2Bb3q1uSHV0AILtJ&token=ji8hmfQIabQA7--VT2HOAQ",
               "http://4.base.maps.api.here.com/maptiler/2.1/maptile/newest/normal.day/{z}/{x}/{y}/256/png8?lg=ENG&app_id=NIEF2Bb3q1uSHV0AILtJ&token=ji8hmfQIabQA7--VT2HOAQ"
             ],
-            attribution: "&copy; 1987 - 2014 HERE</span>&nbsp;<a href='http://here.com/terms?locale=en-US' target='_blank' title='Terms of Use' style='color:#333;text-decoration: underline;'>Terms of Use</a></div> <div style='display: inline-block; position: absolute; bottom: 15px; left: 10px; width: 33px; height: 24px; margin: 6px; background-image: url(http://js.cit.api.here.com/se/2.5.4/assets/ovi/mapsapi/here_logo.png); background-position: 0px 0px; background-repeat: no-repeat;' title='HERE'/>"
+            attributions:[
+              new ol.Attribution({
+                html: "<div style='text-align:center;pointer-events: auto;display: inline-block;background: url(http://m.here.com/fw/img/watermark_dark.png) no-repeat center top;-webkit-background-size: 1.6rem;-moz-background-size: 1.6rem;-o-background-size: 1.6rem;background-size: 1.6rem;-webkit-background-size: 1.6rem 1.25rem;-moz-background-size: 1.6rem 1.25rem;-o-background-size: 1.6rem 1.25rem;background-size: 1.6rem 1.25rem;padding-top: 1.55rem;white-space: nowrap;font-size: .45rem;color:#fff;font-weight:bold;'>&copy; 2011 - 2014 HERE.<br></span>&nbsp;<a href='http://here.com/terms?locale=en-US' target='_blank' title='Terms of Use' style='color:#fff;text-decoration: underline;font-weight:bold;'>Terms of Use</a></div>"
+              })
+            ]
           })
         }),
         vectorLayer
@@ -257,6 +261,7 @@ $().ready(function() {
       renderer: 'canvas',
       target: 'map',
       view: view
+      //,controls: ol.control.defaults({ attribution: false })
     });
 
     // Set center (and possibly zoom) for initial view
@@ -364,8 +369,7 @@ $().ready(function() {
     map.on('click',mapFeatureSelect);
     //map.on('touchend',mapFeatureSelect);
 
-    // Changing style on map moveend
-    map.on('moveend', function(evt) {
+    var mapHighlightClosest = function(){
       var c = map.getView().getCenter();
       console.log('Center: '+c[0]+','+c[1]);
 
@@ -385,7 +389,10 @@ $().ready(function() {
           }        
         }
       }
-    });
+    };
+
+    // Changing style on map moveend
+    map.on('moveend', mapHighlightClosest);
 
     // Build the form based on retrieved interface elements
     var buildForm = function(cfg){

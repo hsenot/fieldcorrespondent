@@ -93,6 +93,23 @@
       .ol-control button:hover {
         background-color:rgba(80,80,80,0.5);
       }
+      .ol-attribution {
+        top: 2.5em;
+        right: .5em;
+        bottom: auto !important;
+      }
+      .ol-attribution ul {
+        display: inline;
+      }
+      .ol-attribution:not(.ol-collapsed) {
+        background: rgba(128,125,128,0.5);
+      }
+      .ol-attribution li:nth-of-type(1){
+        float:left;
+      }
+      button {
+        vertical-align: top;
+      }
       h3 {
         font-size: 18px;
         line-height:18px;
@@ -103,6 +120,7 @@
         height: 100%;
         background-color: rgba(255,0,0,0.33);
       }
+
     </style>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
   </head>
@@ -117,23 +135,23 @@
         <div style="border:1px;">
           <p class="proj_title" style="text-decoration:underline;">Project title</p>
           <p id="stats_proj"></p>
-          <p><a id="observations_link" href="observations.html?id=" target="_blank">All contributions</a></p>
+          <p><a id="observations_link" href="contributions.html?id=" target="_blank">All contributions</a></p>
         </div>
         <div id="stats_me" style="border:1px;">
           <p id="user_name" style="text-decoration:underline;"></p>
           <p id="stats_user"></p>
           <p id="user_rank"></p>
-          <p><a id="my_observations_link" href="observation.html?id=" target="_blank"></a></p>
+          <p><a id="my_observations_link" href="contributions.html?id=" target="_blank"></a></p>
         </div>        
       </div>
       <div id="dashTeaser" style="height:30px;width:30px;background-color:rgba(128,128,128,0.5);float: left;margin:185px 0 0 0;padding:5px;text-align:center;border-radius: 0px 4px 4px 0px;border-color:#fff; cursor:pointer;">
-        <p id="stats_proj_teaser" style="margin:5px 0;font-size:12px;"></p>
+        <p id="stats_proj_teaser" style="margin:5px 0;font-size:12px;" title="Statistics"></p>
       </div>
     </div>
     <div id="formDiv" style="display:none" class="panel panel-default">
       <form role="form"></form>
     </div>
-    <div id="gpsDiv" class="ol-control">
+    <div id="gpsDiv" class="ol-control" title="GPS">
       <img src="img/gps.png"/>
     </div>
     <!--script src="ol3/resources/bootstrap/js/bootstrap.min.js" type="text/javascript"></script-->
