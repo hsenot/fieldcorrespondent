@@ -1,3 +1,15 @@
+goog.require('ol.Map');
+goog.require('ol.View');
+goog.require('ol.layer.Tile');
+goog.require('ol.layer.Vector');
+goog.require('ol.source.KML');
+goog.require('ol.source.Stamen');
+goog.require('ol.style.Circle');
+goog.require('ol.style.Fill');
+goog.require('ol.style.Stroke');
+goog.require('ol.style.Style');
+
+
 var styleCache = {};
 var styleFunction = function(feature, resolution) {
   // 2012_Earthquakes_Mag5.kml stores the magnitude of each earthquake in a

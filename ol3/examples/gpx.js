@@ -1,3 +1,16 @@
+goog.require('ol.Map');
+goog.require('ol.View');
+goog.require('ol.format.GPX');
+goog.require('ol.layer.Tile');
+goog.require('ol.layer.Vector');
+goog.require('ol.proj');
+goog.require('ol.source.BingMaps');
+goog.require('ol.source.GPX');
+goog.require('ol.style.Circle');
+goog.require('ol.style.Fill');
+goog.require('ol.style.Stroke');
+goog.require('ol.style.Style');
+
 var projection = ol.proj.get('EPSG:3857');
 
 var raster = new ol.layer.Tile({
@@ -83,7 +96,7 @@ map.on('click', function(evt) {
 
 var exportGPXElement = document.getElementById('export-gpx');
 if ('download' in exportGPXElement) {
-  var vectorSource = /** @type {ol.source.Vector} */ (vector.getSource());
+  var vectorSource = vector.getSource();
   exportGPXElement.addEventListener('click', function(e) {
     if (!exportGPXElement.href) {
       var features = [];
@@ -97,7 +110,7 @@ if ('download' in exportGPXElement) {
           /** @type {Node} */ (node));
       var base64 = exampleNS.strToBase64(string);
       exportGPXElement.href =
-          'data:gpx+xml;base64,' + base64;
+          'data:text/gpx+xml;base64,' + base64;
     }
   }, false);
 } else {

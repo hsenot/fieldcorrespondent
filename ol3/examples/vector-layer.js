@@ -1,34 +1,44 @@
-var styleCache = {};
+goog.require('ol.FeatureOverlay');
+goog.require('ol.Map');
+goog.require('ol.View');
+goog.require('ol.layer.Tile');
+goog.require('ol.layer.Vector');
+goog.require('ol.source.GeoJSON');
+goog.require('ol.source.MapQuest');
+goog.require('ol.style.Fill');
+goog.require('ol.style.Stroke');
+goog.require('ol.style.Style');
+goog.require('ol.style.Text');
+
+
+var style = new ol.style.Style({
+  fill: new ol.style.Fill({
+    color: 'rgba(255, 255, 255, 0.6)'
+  }),
+  stroke: new ol.style.Stroke({
+    color: '#319FD3',
+    width: 1
+  }),
+  text: new ol.style.Text({
+    font: '12px Calibri,sans-serif',
+    fill: new ol.style.Fill({
+      color: '#000'
+    }),
+    stroke: new ol.style.Stroke({
+      color: '#fff',
+      width: 3
+    })
+  })
+});
+var styles = [style];
 var vectorLayer = new ol.layer.Vector({
   source: new ol.source.GeoJSON({
     projection: 'EPSG:3857',
     url: 'data/geojson/countries.geojson'
   }),
   style: function(feature, resolution) {
-    var text = resolution < 5000 ? feature.get('name') : '';
-    if (!styleCache[text]) {
-      styleCache[text] = [new ol.style.Style({
-        fill: new ol.style.Fill({
-          color: 'rgba(255, 255, 255, 0.6)'
-        }),
-        stroke: new ol.style.Stroke({
-          color: '#319FD3',
-          width: 1
-        }),
-        text: new ol.style.Text({
-          font: '12px Calibri,sans-serif',
-          text: text,
-          fill: new ol.style.Fill({
-            color: '#000'
-          }),
-          stroke: new ol.style.Stroke({
-            color: '#fff',
-            width: 3
-          })
-        })
-      })];
-    }
-    return styleCache[text];
+    style.getText().setText(resolution < 5000 ? feature.get('name') : '');
+    return styles;
   }
 });
 

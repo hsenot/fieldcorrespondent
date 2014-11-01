@@ -1,3 +1,12 @@
+goog.require('ol.Map');
+goog.require('ol.View');
+goog.require('ol.format.KML');
+goog.require('ol.layer.Tile');
+goog.require('ol.layer.Vector');
+goog.require('ol.proj');
+goog.require('ol.source.BingMaps');
+goog.require('ol.source.KML');
+
 var projection = ol.proj.get('EPSG:3857');
 
 var raster = new ol.layer.Tile({
@@ -54,7 +63,7 @@ map.on('click', function(evt) {
 
 var exportKMLElement = document.getElementById('export-kml');
 if ('download' in exportKMLElement) {
-  var vectorSource = /** @type {ol.source.Vector} */ (vector.getSource());
+  var vectorSource = vector.getSource();
   exportKMLElement.addEventListener('click', function(e) {
     if (!exportKMLElement.href) {
       var features = [];

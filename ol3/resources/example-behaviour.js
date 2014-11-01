@@ -1,5 +1,5 @@
 ;(function() {
-  if (window.location.host === 'localhost:8080') {
+  if (window.location.host === 'localhost:3000') {
     return;
   }
   var container = $('.navbar .navbar-inner .container')[0],
